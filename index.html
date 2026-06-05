@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PanDow - All Social Media Video Downloader</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- PREMIUM MODERN VARIABLES --- */
+        :root {
+            --bg-gradient: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #0f172a 50%, #020617 100%);
+            --panel-bg: rgba(15, 23, 42, 0.45);
+            --panel-border: rgba(255, 255, 255, 0.08);
+            --accent-primary: #3b82f6;
+            --accent-secondary: #ec4899;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --loading-logo-url: url('https://i.ibb.co.com/svpxzQdF/image.png');
+        }
+
+        /* --- GLOBAL RESET --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        /* Ambient Glow Background Particles */
+        body::before, body::after {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: var(--accent-primary);
+            filter: blur(120px);
+            opacity: 0.15;
+            z-index: -1;
+            pointer-events: none;
+        }
+        body::before { top: 10%; left: 10%; animation: floatGlow 8s infinite alternate; }
+        body::after { top: 40%; right: 10%; background: var(--accent-secondary); animation: floatGlow 12s infinite alternate-reverse; }
+
+        @keyframes floatGlow {
+            0% { transform: translateY(0) scale(1); }
+            100% { transform: translateY(30px) scale(1.2); }
+        }
+
+        /* --- INTRO LOADER SCREEN --- */
+        #loading-page {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #020617;
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.8s cubic-bezier(0.25, 1, 0.5, 1), visibility 0.8s;
+        }
+
+        .loader-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            animation: loaderScaleIn 0.6s ease-out forwards;
+        }
+
+        .loader-logo {
+            width: 110px;
+            height: 110px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 2px solid var(--panel-border);
+            content: var(--loading-logo-url);
+            box-shadow: 0 0 40px rgba(59, 130, 246, 0.25);
+            animation: logoPulseGlow 2s ease-in-out infinite;
+        }
+
+        .loader-pandow-text {
+            font-size: 36px;
+            font-weight: 800;
+            letter-spacing: 4px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: textPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes loaderScaleIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes logoPulseGlow {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 30px rgba(59, 130, 246, 0.2); }
+            50% { transform: scale(1.05); box-shadow: 0 0 50px rgba(236, 72, 153, 0.4); }
+        }
+
+        /* --- HEADER --- */
+        header {
+            width: 100%;
+            max-width: 1200px;
+            padding: 25px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .brand-name {
+            font-size: 26px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            background: linear-gradient(135deg, #fff 40%, #cbd5e1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .menu-dots {
+            cursor: pointer;
+            width: 42px;
+            height: 42px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 6px;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--panel-border);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .menu-dots span {
+            display: block;
+            height: 3px;
+            background: var(--accent-primary);
+            border-radius: 2px;
+            transition: all 0.3s cubic-bezier(0.68, -0.6, 0.32, 1.6);
+        }
+        .menu-dots span:nth-child(1) { width: 22px; }
+        .menu-dots span:nth-child(2) { width: 14px; }
+        .menu-dots span:nth-child(3) { width: 18px; }
+
+        .menu-dots:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+        .menu-dots:hover span { background: var(--accent-secondary); width: 22px; }
+
+        /* --- DASHBOARD SIDEBAR --- */
+        .dashboard-sidebar {
+            position: fixed;
+            top: 0;
+            left: -320px;
+            width: 300px;
+            height: 100%;
+            background: rgba(7, 10, 22, 0.9);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 10px 0 40px rgba(0,0,0,0.7);
+            z-index: 999;
+            padding: 90px 24px;
+            transition: all 0.5s cubic-bezier(0.77, 0, 0.175, 1);
+            border-right: 1px solid var(--panel-border);
+        }
+
+        .dashboard-sidebar.active { left: 0; }
+
+        .sidebar-close-btn {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 28px;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        .sidebar-close-btn:hover { color: #ef4444; }
+
+        .sidebar-item {
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border: 1px solid transparent;
+            font-size: 14px;
+            font-weight: 500;
+            color: #cbd5e1;
+        }
+
+        .sidebar-item i { font-size: 16px; width: 20px; text-align: center; color: var(--accent-primary); }
+
+        .sidebar-item:hover {
+            background: rgba(59, 130, 246, 0.08);
+            border-color: rgba(59, 130, 246, 0.2);
+            color: #fff;
+            transform: translateX(6px);
+        }
+
+        /* --- MAIN CONTAINER --- */
+        .container {
+            width: 100%;
+            max-width: 760px;
+            padding: 0 20px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 35px;
+            flex-grow: 1;
+            z-index: 10;
+        }
+
+        /* Main Logo Animasi */
+        .logo-box {
+            position: relative;
+            margin-top: 15px;
+        }
+
+        .main-logo {
+            width: 115px;
+            height: 115px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .logo-box:hover .main-logo {
+            transform: rotate(360deg) scale(1.08);
+            border-color: var(--accent-secondary);
+            box-shadow: 0 0 35px rgba(236, 72, 153, 0.5);
+        }
+
+        /* Hero Text */
+        .hero-desc h2 {
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #ffffff 0%, #94a3b8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-desc p {
+            margin-top: 10px;
+            font-size: 15px;
+            color: var(--text-muted);
+            line-height: 1.6;
+            max-width: 580px;
+        }
+
+        /* --- ULTRA MODERN FILTER BUTTONS --- */
+        .filter-container {
+            display: flex;
+            gap: 8px;
+            background: rgba(15, 23, 42, 0.6);
+            padding: 6px;
+            border-radius: 18px;
+            border: 1px solid var(--panel-border);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .filter-btn {
+            padding: 12px 24px;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 14px;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .filter-btn i { font-size: 15px; }
+
+        .filter-btn.active { color: #fff; }
+        
+        /* Dynamic Platform Active Styles */
+        .filter-btn[data-platform="tiktok"].active { background: rgba(255, 255, 255, 0.07); box-shadow: inset 0 1px 1px rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); color: #00f2fe; text-shadow: 0 0 10px rgba(0,242,254,0.3); }
+        .filter-btn[data-platform="youtube"].active { background: rgba(255, 0, 0, 0.1); border: 1px solid rgba(255, 0, 0, 0.25); color: #ff3333; }
+        .filter-btn[data-platform="instagram"].active { background: rgba(236, 72, 153, 0.1); border: 1px solid rgba(236, 72, 153, 0.25); color: #f43f5e; }
+
+        /* --- PREMIUM DOWNLOAD BOX --- */
+        .download-box {
+            width: 100%;
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            padding: 30px;
+            border-radius: 28px;
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 12px;
+            width: 100%;
+            background: rgba(2, 6, 23, 0.6);
+            padding: 8px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.03);
+            transition: all 0.4s ease;
+        }
+
+        .input-group:focus-within {
+            border-color: rgba(59, 130, 246, 0.4);
+            box-shadow: 0 0 25px rgba(59, 130, 246, 0.15);
+        }
+
+        .input-group input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #fff;
+            padding: 12px 18px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .input-group input::placeholder { color: #475569; }
+
+        .dl-btn {
+            background: linear-gradient(135deg, var(--accent-primary), #1d4ed8);
+            border: none;
+            color: white;
+            padding: 14px 28px;
+            font-weight: 700;
+            font-size: 14px;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .dl-btn:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
+
+        .dl-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.45);
+        }
+
+        /* --- VIDEO RESULTS BOX (ANIMATED) --- */
+        .video-preview-wrapper {
+            width: 100%;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.6s cubic-bezier(0.77, 0, 0.175, 1);
+        }
+
+        .video-preview-wrapper.show { max-height: 600px; margin-top: 25px; }
+
+        .video-box-content {
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px dashed rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .video-title {
+            font-size: 14px;
+            color: #e2e8f0;
+            font-weight: 600;
+            line-height: 1.5;
+            max-width: 90%;
+        }
+
+        .video-placeholder {
+            width: 100%;
+            max-width: 380px;
+            aspect-ratio: 16/9;
+            background: #000;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .video-placeholder video { width: 100%; height: 100%; object-fit: contain; }
+
+        /* --- SNAPTIK LAYOUT: FAQ / DESKRIPSI SECTION --- */
+        .premium-desc-section {
+            width: 100%;
+            text-align: left;
+            margin-top: 15px;
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            font-size: 22px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            text-align: center;
+            background: linear-gradient(135deg, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .faq-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            width: 100%;
+        }
+
+        .faq-card {
+            background: rgba(15, 23, 42, 0.3);
+            border: 1px solid var(--panel-border);
+            border-radius: 20px;
+            padding: 24px;
+            transition: all 0.4s ease;
+        }
+
+        .faq-card:hover {
+            background: rgba(15, 23, 42, 0.5);
+            border-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .faq-card h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .faq-card h3 i { color: var(--accent-primary); font-size: 18px; }
+        .faq-card:nth-child(2) h3 i { color: #10b981; }
+        .faq-card:nth-child(3) h3 i { color: var(--accent-secondary); }
+
+        .faq-card p {
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        /* --- MODAL DIALOG --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(2, 6, 23, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+            padding: 20px;
+        }
+
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+
+        .modal-content {
+            background: #0f172a;
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 32px;
+            border-radius: 24px;
+            max-width: 480px;
+            width: 100%;
+            transform: scale(0.9);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .modal-overlay.active .modal-content { transform: scale(1); }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            padding-bottom: 12px;
+        }
+
+        .modal-header h3 { font-size: 18px; font-weight: 700; color: var(--accent-primary); }
+
+        .close-modal {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 24px;
+            cursor: pointer;
+        }
+        .close-modal:hover { color: #ef4444; }
+
+        .modal-body p { color: var(--text-muted); font-size: 14px; line-height: 1.6; }
+
+        /* --- FOOTER --- */
+        footer {
+            margin-top: auto;
+            width: 100%;
+            padding: 30px 20px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #475569;
+            text-align: center;
+            border-top: 1px solid rgba(255,255,255,0.02);
+        }
+
+        /* --- RESPONSIVE WORK --- */
+        @media (max-width: 600px) {
+            .input-group { flex-direction: column; background: transparent; border: none; padding: 0; gap: 12px; }
+            .input-group input { background: rgba(2, 6, 23, 0.7); border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); }
+            .dl-btn { width: 100%; justify-content: center; padding: 16px; border-radius: 16px; }
+            .filter-container { width: 100%; overflow-x: auto; justify-content: flex-start; }
+            .filter-btn { padding: 10px 18px; flex-shrink: 0; }
+            .hero-desc h2 { font-size: 26px; }
+            .section-title { font-size: 18px; }
+            .faq-card { padding: 18px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loading-page">
+        <div class="loader-content">
+            <img class="loader-logo" alt="PanDow Loader Logo">
+            <div class="loader-pandow-text">PanDow</div>
+        </div>
+    </div>
+
+    <div class="dashboard-sidebar" id="sidebar">
+        <button class="sidebar-close-btn" onclick="toggleSidebar()">&times;</button>
+        <div class="sidebar-item" onclick="openModal('mengapa')"><i class="fa-solid fa-user-shield"></i> Kebijakan Pengguna</div>
+        <div class="sidebar-item" onclick="openModal('tujuan')"><i class="fa-solid fa-signature"></i> Arti Nama PanDow</div>
+        <div class="sidebar-item" onclick="openModal('tentang')"><i class="fa-solid fa-triangle-exclamation"></i> Panduan Penting</div>
+        <div class="sidebar-item" onclick="redirectToWA()"><i class="fa-brands fa-whatsapp"></i> Hubungi via WA</div>
+    </div>
+
+    <header>
+        <div class="brand-name">PanDow</div>
+        <div class="menu-dots" id="menu-toggle" onclick="toggleSidebar()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </header>
+
+    <div class="container">
+        
+        <div class="logo-box">
+            <img class="main-logo" src="https://i.ibb.co.com/21N6fcLQ/image.png" alt="PanDow Main Logo">
+        </div>
+
+        <div class="hero-desc">
+            <h2>Panda Downloader</h2>
+            <p>Unduh video kesukaanmu dari berbagai platform media sosial secara instan, kualitas HD tinggi, tanpa ribet, dan gratis tanpa watermark.</p>
+        </div>
+
+        <div class="filter-container">
+            <button class="filter-btn active" data-platform="tiktok" onclick="setPlatform('tiktok')">
+                <i class="fa-brands fa-tiktok"></i> TikTok
+            </button>
+            <button class="filter-btn" data-platform="youtube" onclick="setPlatform('youtube')">
+                <i class="fa-brands fa-youtube"></i> YouTube
+            </button>
+            <button class="filter-btn" data-platform="instagram" onclick="setPlatform('instagram')">
+                <i class="fa-brands fa-instagram"></i> Instagram
+            </button>
+        </div>
+
+        <div class="download-box">
+            <div class="input-group">
+                <input type="text" id="video-url" placeholder="Tempel tautan video TikTok di sini...">
+                <button class="dl-btn" id="download-button" onclick="triggerDownload()">
+                    <i class="fa-solid fa-bolt"></i> <span id="btn-text">Download</span>
+                </button>
+            </div>
+
+            <div class="video-preview-wrapper" id="preview-wrapper">
+                <div class="video-box-content">
+                    <p style="font-size: 13px; color: #10b981; font-weight: 700;"><i class="fa-solid fa-circle-check"></i> Video Berhasil Ditemukan!</p>
+                    <div class="video-title" id="preview-title">Judul Video</div>
+                    <div class="video-placeholder">
+                        <video id="preview-video" controls muted autoplay loop>
+                            <source id="video-source" src="" type="video/mp4">
+                            Browser Anda tidak mendukung pratinjau video.
+                        </video>
+                    </div>
+                    <a id="save-gallery-btn" href="#" target="_blank" class="dl-btn" style="background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3); font-size: 13px; padding: 10px 20px; text-decoration: none;">
+                        <i class="fa-solid fa-arrow-down-to-line"></i> Simpan ke Galeri
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <section class="premium-desc-section">
+            <h2 class="section-title">Mengapa selalu pake PanDow?</h2>
+            <div class="faq-grid">
+                <div class="faq-card">
+                    <h3><i class="fa-solid fa-circle-bolt"></i> Proses Download Super Cepat</h3>
+                    <p>Gak perlu nunggu lama buat dapetin video impian lu. Cukup tempel link, klik download, sistem cerdas kami langsung memproses video dalam hitungan detik. Sat-set langsung kelar!</p>
+                </div>
+                <div class="faq-card">
+                    <h3><i class="fa-solid fa-wand-magic-sparkles"></i> Tanpa Watermark & Kualitas HD</h3>
+                    <p>PanDow memastikan setiap file video yang kamu unduh bersih dari watermark mengganggu dengan resolusi kualitas terbaik (High Definition) biar nyaman ditonton ulang kapan aja.</p>
+                </div>
+                <div class="faq-card">
+                    <h3><i class="fa-solid fa-infinity"></i> 100% Gratis Tanpa Batasan</h3>
+                    <p>Nikmati akses premium sepuasnya tanpa perlu langganan atau bayar sepeser pun. Unduh puluhan hingga ratusan file video dari TikTok, YouTube, dan Instagram tanpa batas limit harian.</p>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <div class="modal-overlay" id="modal-overlay" onclick="closeModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3 id="modal-title">Judul Informasi</h3>
+                <button class="close-modal" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="modal-text">Konten penjelasan...</p>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        &copy; PT. REZA MAJU
+    </footer>
+
+    <script>
+        const infoData = {
+            mengapa: {
+                title: "Kebijakan Pengguna PanDow",
+                text: "Woy pantek! Selamat datang di PanDow. Lu bisa unduh video atau media apa bae di sini sepuas lu, tapi otak tetep dipake, pukimak! 🤬 Kebijakan ini dibuat biar lu tau diri. PanDow cuma alat bantu download, jadi jangan lu salah gunakan buat nyolong karya orang terus lu aku-akuin jadi punya lu, bangsat. Lu yang download, ya lu yang tanggung jawab kalau keciduk. Jangan mewek ke kita!"
+            },
+            tujuan: {
+                title: "Mengapa menamai PanDow?",
+                text: "Ya simpel lah pantek, PanDow itu singkatan dari Panda Downloader! Biar gampang disebut, gampang diingat, dan sat-set pas lu mau download media. Gak usah bikin ribet, yang penting aplikasinya gacor, pukimak! 🤬."
+            },
+            tentang: {
+                title: "Pengguna PanDow wajib Baca!",
+                text: "Minimal dipake dulu otaknya sebelum asal klik ya, bang! Pastiin link yang lu paste itu beneran valid, kagak eror, dan bukan dari akun privat yang dikunci. Server udah kerja keras bagai kuda, jadi jangan pas lu salah masukin link atau kuota lu sekarat, yang disalahin malah aplikasinya yang eror. Gaya lu di sosmed udah selangit, tapi masa baca instruksi gini aja kagak becus? Kalau udah paham dan link-nya udah bener, ya udah gass silakan download sepuas lu!"
+            }
+        };
+
+        // Smooth Loader FadeOut
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                const loader = document.getElementById('loading-page');
+                if (loader) {
+                    loader.style.opacity = '0';
+                    loader.style.visibility = 'hidden';
+                }
+            }, 1600);
+        });
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+        }
+
+        document.addEventListener('click', (e) => {
+            const sidebar = document.getElementById('sidebar');
+            const menuToggle = document.getElementById('menu-toggle');
+            if (sidebar.classList.contains('active') && !sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
+                sidebar.classList.remove('active');
+            }
+        });
+
+        let currentPlatform = 'tiktok';
+        function setPlatform(platform) {
+            currentPlatform = platform;
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`.filter-btn[data-platform="${platform}"]`).classList.add('active');
+
+            const inputField = document.getElementById('video-url');
+            inputField.placeholder = `Tempel tautan video ${platform.charAt(0).toUpperCase() + platform.slice(1)} di sini...`;
+            document.getElementById('preview-wrapper').classList.remove('show');
+        }
+
+        async function triggerDownload() {
+            const urlInput = document.getElementById('video-url');
+            const urlValue = urlInput.value.trim();
+            const dlBtn = document.getElementById('download-button');
+            const btnText = document.getElementById('btn-text');
+            const previewWrapper = document.getElementById('preview-wrapper');
+
+            if(!urlValue) {
+                alert("Masukkan tautan URL video terlebih dahulu!");
+                return;
+            }
+
+            if(currentPlatform === 'tiktok' && !urlValue.includes('tiktok.com')) {
+                alert("Masukkan URL TikTok yang valid!");
+                return;
+            }
+            if(currentPlatform === 'youtube' && !urlValue.includes('youtu.be') && !urlValue.includes('youtube.com')) {
+                alert("Masukkan URL YouTube yang valid!");
+                return;
+            }
+            if(currentPlatform === 'instagram' && !urlValue.includes('instagram.com')) {
+                alert("Masukkan URL Instagram yang valid!");
+                return;
+            }
+
+            try {
+                dlBtn.disabled = true;
+                btnText.innerText = "Processing...";
+                previewWrapper.classList.remove('show');
+
+                let apiUrl = "";
+                if (currentPlatform === 'tiktok') {
+                    apiUrl = `https://api.zenzxz.my.id/download/tiktok?url=${encodeURIComponent(urlValue)}`;
+                } else if (currentPlatform === 'youtube') {
+                    apiUrl = `https://api.zenzxz.my.id/download/youtube?url=${encodeURIComponent(urlValue)}&format=1080`;
+                } else if (currentPlatform === 'instagram') {
+                    apiUrl = `https://api.zenzxz.my.id/download/instagram?url=${encodeURIComponent(urlValue)}`;
+                }
+
+                const response = await fetch(apiUrl);
+                const resData = await response.json();
+
+                if (resData.status && resData.result) {
+                    const videoData = resData.result;
+                    
+                    let displayTitle = "Video Berhasil Diambil";
+                    if (currentPlatform === 'instagram') {
+                        displayTitle = videoData.caption ? `${videoData.username}: "${videoData.caption}"` : `Instagram Video by ${videoData.username}`;
+                    } else {
+                        displayTitle = videoData.title || "Video Berhasil Diambil";
+                    }
+                    document.getElementById('preview-title').innerText = displayTitle;
+                    
+                    let downloadUrl = "";
+                    if (currentPlatform === 'tiktok') {
+                        downloadUrl = videoData.hdplay || videoData.play || videoData.wmplay;
+                    } else if (currentPlatform === 'youtube') {
+                        downloadUrl = videoData.download;
+                    } else if (currentPlatform === 'instagram') {
+                        downloadUrl = videoData.url;
+                    }
+
+                    if (!downloadUrl) {
+                        alert("Gagal menemukan link download video yang valid dari server.");
+                        return;
+                    }
+
+                    const videoPlayer = document.getElementById('preview-video');
+                    videoPlayer.src = downloadUrl;
+                    videoPlayer.load();
+
+                    const galleryBtn = document.getElementById('save-gallery-btn');
+                    galleryBtn.href = downloadUrl;
+                    galleryBtn.setAttribute('download', `PanDow_${videoData.id || Date.now()}.mp4`);
+
+                    previewWrapper.classList.add('show');
+                    previewWrapper.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    
+                    urlInput.value = '';
+                } else {
+                    alert("Gagal memproses video. Pastikan link video publik dan valid!");
+                }
+            } catch (error) {
+                console.error("API Error: ", error);
+                alert("Terjadi masalah koneksi sistem saat menghubungi server API Zenzxz.");
+            } finally {
+                dlBtn.disabled = false;
+                btnText.innerText = "Download";
+            }
+        }
+
+        function openModal(key) {
+            if(infoData[key]) {
+                document.getElementById('modal-title').innerText = infoData[key].title;
+                document.getElementById('modal-text').innerText = infoData[key].text;
+                document.getElementById('modal-overlay').classList.add('active');
+            }
+            document.getElementById('sidebar').classList.remove('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modal-overlay').classList.remove('active');
+        }
+
+        function redirectToWA() {
+            window.open('https://wa.me/6283116920767', '_blank');
+        }
+    </script>
+</body>
+</html>
