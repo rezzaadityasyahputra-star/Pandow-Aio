@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PanDow — Aturan & Ketentuan Layanan</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-main: #0b0f19;
+            --bg-card: rgba(23, 31, 51, 0.6);
+            --bg-card-hover: rgba(30, 41, 67, 0.8);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --border-glow: rgba(99, 102, 241, 0.4);
+            --primary: #6366f1;
+            --accent: #06b6d4;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --radius-sm: 8px;
+            --radius-md: 16px;
+            --radius-lg: 24px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Background Glow FX */
+        .glow-bg {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            filter: blur(120px);
+            z-index: -1;
+            pointer-events: none;
+            max-width: 100vw;
+        }
+        .glow-1 { top: -50px; left: 5%; background: rgba(99, 102, 241, 0.25); }
+        .glow-2 { bottom: 50px; right: 0; background: rgba(6, 182, 212, 0.15); }
+
+        .container {
+            max-width: 850px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* Navbar */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            padding: 18px 0;
+            background: rgba(11, 15, 25, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .nav-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--text-main);
+            outline: none;
+        }
+
+        .logo i {
+            color: var(--primary);
+            font-size: 1.4rem;
+        }
+
+        /* Main Content */
+        .rules-section {
+            padding: 130px 0 60px 0;
+            flex: 1;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .section-tag {
+            display: inline-block;
+            padding: 6px 16px;
+            background: rgba(99, 102, 241, 0.15);
+            color: #a5b4fc;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+
+        .section-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 12px;
+            background: linear-gradient(to right, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .section-desc {
+            color: var(--text-muted);
+            font-size: 0.98rem;
+        }
+
+        /* Card Container Aturan */
+        .rules-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 36px;
+            backdrop-filter: blur(10px);
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .rules-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .rule-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        .rule-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: rgba(99, 102, 241, 0.12);
+            border: 1px solid rgba(99, 102, 241, 0.25);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .rule-content h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: var(--text-main);
+        }
+
+        .rule-content p {
+            font-size: 0.92rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        /* Terms Checkbox Area */
+        .agree-box {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 20px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .checkbox-container input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--primary);
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .checkbox-label {
+            color: var(--text-main);
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        /* Action Link Button */
+        .btn-link {
+            text-decoration: none;
+            width: 100%;
+            max-width: 320px;
+            display: inline-block;
+        }
+
+        .btn-continue {
+            width: 100%;
+            padding: 14px 28px;
+            border-radius: var(--radius-sm);
+            font-weight: 700;
+            font-size: 1rem;
+            border: none;
+            cursor: not-allowed;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.35);
+            outline: none;
+        }
+
+        /* Style ketika checkbox aktif */
+        .btn-continue.active {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: #ffffff;
+            cursor: pointer;
+            box-shadow: 0 4px 20px var(--primary-glow);
+        }
+
+        .btn-continue.active:hover, .btn-continue.active:active {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(99, 102, 241, 0.4);
+        }
+
+        /* Footer */
+        footer {
+            border-top: 1px solid var(--border-color);
+            padding: 24px 0;
+            background: #070a12;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 600px) {
+            .section-title { font-size: 1.8rem; }
+            .rules-card { padding: 24px; }
+            .agree-box { padding: 18px 16px; }
+            .checkbox-label { font-size: 0.88rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="glow-bg glow-1"></div>
+    <div class="glow-bg glow-2"></div>
+
+    <!-- Header / Navbar -->
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a href="#" class="logo">
+                <i class="fa-solid fa-shield-halved"></i> PanDow — Aturan
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="rules-section">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">Ketentuan Penggunaan</span>
+                <h1 class="section-title">Aturan Website PanDow</h1>
+                <p class="section-desc">Harap baca dan pahami aturan penggunaan di bawah ini sebelum menggunakan layanan kami.</p>
+            </div>
+
+            <!-- Kartu Daftar Aturan -->
+            <div class="rules-card">
+                <ul class="rules-list">
+                    <li class="rule-item">
+                        <div class="rule-icon"><i class="fa-solid fa-user-shield"></i></div>
+                        <div class="rule-content">
+                            <h3>Penggunaan Pribadi & Legal</h3>
+                            <p>Layanan PanDow hanya diperuntukkan bagi pengunduhan konten pribadi. Pengguna dilarang keras menyalahgunakan media yang diunduh untuk tindakan melanggar hukum.</p>
+                        </div>
+                    </li>
+
+                    <li class="rule-item">
+                        <div class="rule-icon"><i class="fa-solid fa-copyright"></i></div>
+                        <div class="rule-content">
+                            <h3>Hak Cipta & Hak Milik</h3>
+                            <p>Seluruh hak cipta konten (video, foto, musik) sepenuhnya milik kreator asli. PanDow tidak menyimpan atau mengklaim kepemilikan atas media yang diproses.</p>
+                        </div>
+                    </li>
+
+                    <li class="rule-item">
+                        <div class="rule-icon"><i class="fa-solid fa-ban"></i></div>
+                        <div class="rule-content">
+                            <h3>Dilarang Spam & Bot Attack</h3>
+                            <p>Dilarang melakukan spamming request, scraping otomatis secara berlebihan, atau mencoba merusak infrastruktur server PanDow.</p>
+                        </div>
+                    </li>
+
+                    <li class="rule-item">
+                        <div class="rule-icon"><i class="fa-solid fa-lock"></i></div>
+                        <div class="rule-content">
+                            <h3>Privasi Kerahasiaan</h3>
+                            <p>Kami menjamin tidak menyimpan data pribadi pengguna atau riwayat tautan media yang Anda tempelkan di platform kami.</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Box Persetujuan Checkbox & Tombol -->
+            <div class="agree-box">
+                <label class="checkbox-container">
+                    <input type="checkbox" id="agreeCheckbox" onchange="toggleButton()">
+                    <span class="checkbox-label">Saya telah membaca dan menyetujui seluruh aturan di atas.</span>
+                </label>
+
+                <!-- Anchor Link ke halaman utama -->
+                <a href="Download.html" id="continueLink" class="btn-link" style="pointer-events: none;">
+                    <button type="button" id="continueBtn" class="btn-continue" disabled>
+                        <span>Lanjutkan</span> <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 PanDow — Seluruh Aturan Dilindungi.</p>
+        </div>
+    </footer>
+
+    <script>
+        function toggleButton() {
+            const checkbox = document.getElementById('agreeCheckbox');
+            const button = document.getElementById('continueBtn');
+            const link = document.getElementById('continueLink');
+
+            if (checkbox.checked) {
+                button.classList.add('active');
+                button.disabled = false;
+                link.style.pointerEvents = 'auto';
+            } else {
+                button.classList.remove('active');
+                button.disabled = true;
+                link.style.pointerEvents = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
