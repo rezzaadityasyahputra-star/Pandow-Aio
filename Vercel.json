@@ -1,5 +1,5 @@
 {
   "rewrites": [
-    { "source": "/download", "destination": "/Download.html" }
+    { "source": "/Download", "destination": "/Download.html" }
   ]
 }
