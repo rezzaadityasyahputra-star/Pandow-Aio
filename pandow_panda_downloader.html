@@ -1,0 +1,1794 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>PanDow 🐼 — Panda Video Downloader</title>
+  <!-- Google Fonts: Plus Jakarta Sans & Poppins -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            display: ['"Poppins"', 'sans-serif'],
+          },
+          colors: {
+            panda: {
+              black: '#111827',
+              dark: '#0B0F19',
+              green: '#16A34A',
+              emerald: '#22C55E',
+              light: '#F0FDF4',
+              border: '#E5E7EB',
+            }
+          },
+          boxShadow: {
+            'soft': '0 10px 40px -10px rgba(17, 24, 39, 0.06)',
+            'card': '0 20px 50px -12px rgba(17, 24, 39, 0.08)',
+            'green-glow': '0 10px 25px -5px rgba(22, 163, 74, 0.35)',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Reset & Anti-Highlight Mobile */
+    * {
+      -webkit-tap-highlight-color: transparent;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      overflow-x: hidden;
+      width: 100%;
+      background-color: #FFFFFF;
+      color: #111827;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    /* Custom Press & Hover Micro-Interactions */
+    .btn-press {
+      transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, background-color 0.2s ease;
+      user-select: none;
+    }
+    .btn-press:active {
+      transform: scale(0.95) !important;
+    }
+
+    /* Intro Screen Clouds & Twinkling Stars */
+    @keyframes floatCloudSlow {
+      0%, 100% { transform: translateX(0px); }
+      50% { transform: translateX(18px); }
+    }
+    @keyframes floatCloudReverse {
+      0%, 100% { transform: translateX(0px); }
+      50% { transform: translateX(-18px); }
+    }
+    @keyframes twinkleStar {
+      0%, 100% { opacity: 0.25; transform: scale(0.85) rotate(0deg); }
+      50% { opacity: 1; transform: scale(1.15) rotate(12deg); }
+    }
+    @keyframes swayBamboo {
+      0%, 100% { transform: rotate(-2deg); }
+      50% { transform: rotate(2.5deg); }
+    }
+
+    .cloud-float-1 { animation: floatCloudSlow 7s ease-in-out infinite; }
+    .cloud-float-2 { animation: floatCloudReverse 8.5s ease-in-out infinite; }
+    .star-twinkle-1 { animation: twinkleStar 2.6s ease-in-out infinite; }
+    .star-twinkle-2 { animation: twinkleStar 3.4s ease-in-out infinite 0.8s; }
+    .star-twinkle-3 { animation: twinkleStar 2.9s ease-in-out infinite 1.4s; }
+    .bamboo-sway { transform-origin: bottom center; animation: swayBamboo 5s ease-in-out infinite; }
+
+    /* Panda Walking & Waving SVG Keyframes */
+    @keyframes pandaBodyBounce {
+      0%, 100% { transform: translateY(0px) rotate(-1.5deg); }
+      25% { transform: translateY(-6px) rotate(0deg); }
+      50% { transform: translateY(0px) rotate(1.5deg); }
+      75% { transform: translateY(-6px) rotate(0deg); }
+    }
+    @keyframes pandaLegLeft {
+      0%, 100% { transform: translateY(0px) rotate(-14deg); }
+      50% { transform: translateY(-7px) rotate(16deg); }
+    }
+    @keyframes pandaLegRight {
+      0%, 100% { transform: translateY(-7px) rotate(16deg); }
+      50% { transform: translateY(0px) rotate(-14deg); }
+    }
+    @keyframes pandaArmSwingLeft {
+      0%, 100% { transform: rotate(16deg); }
+      50% { transform: rotate(-16deg); }
+    }
+    @keyframes pandaArmSwingRight {
+      0%, 100% { transform: rotate(-16deg); }
+      50% { transform: rotate(16deg); }
+    }
+    @keyframes pandaWaveHand {
+      0%, 100% { transform: rotate(-115deg); }
+      25% { transform: rotate(-148deg); }
+      50% { transform: rotate(-105deg); }
+      75% { transform: rotate(-145deg); }
+    }
+    @keyframes pandaHeadTilt {
+      0%, 100% { transform: rotate(0deg); }
+      35% { transform: rotate(6deg); }
+      70% { transform: rotate(-4deg); }
+    }
+    @keyframes shadowPulse {
+      0%, 100% { transform: scaleX(1); opacity: 0.14; }
+      50% { transform: scaleX(0.86); opacity: 0.08; }
+    }
+
+    /* Walking State Classes */
+    .panda-walking #panda-body-group {
+      animation: pandaBodyBounce 0.56s ease-in-out infinite;
+      transform-origin: 100px 120px;
+    }
+    .panda-walking #panda-leg-left {
+      animation: pandaLegLeft 0.56s ease-in-out infinite;
+      transform-origin: 82px 152px;
+    }
+    .panda-walking #panda-leg-right {
+      animation: pandaLegRight 0.56s ease-in-out infinite;
+      transform-origin: 118px 152px;
+    }
+    .panda-walking #panda-arm-left {
+      animation: pandaArmSwingLeft 0.56s ease-in-out infinite;
+      transform-origin: 66px 108px;
+    }
+    .panda-walking #panda-arm-right {
+      animation: pandaArmSwingRight 0.56s ease-in-out infinite;
+      transform-origin: 134px 108px;
+    }
+    .panda-walking #panda-ground-shadow {
+      animation: shadowPulse 0.56s ease-in-out infinite;
+      transform-origin: 100px 182px;
+    }
+
+    /* Waving State Classes */
+    .panda-waving #panda-arm-right {
+      animation: pandaWaveHand 0.65s ease-in-out infinite;
+      transform-origin: 134px 106px;
+    }
+    .panda-waving #panda-head-group {
+      animation: pandaHeadTilt 1.3s ease-in-out infinite;
+      transform-origin: 100px 80px;
+    }
+
+    /* Panda Stage Horizontal Position */
+    #panda-walker-wrapper {
+      position: relative;
+      will-change: transform;
+      transition: transform 2.6s cubic-bezier(0.25, 0.85, 0.35, 1);
+    }
+
+    /* Smooth Reveal Animations */
+    .reveal-item {
+      opacity: 0;
+      transform: translateY(22px);
+      transition: opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1), transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .reveal-item.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Custom Panda Spinner */
+    @keyframes spinRing {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .loader-ring {
+      animation: spinRing 0.95s cubic-bezier(0.55, 0.15, 0.45, 0.85) infinite;
+    }
+
+    /* Floating Hero Phone Glow */
+    @keyframes gentleFloat {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-7px); }
+    }
+    .hero-float {
+      animation: gentleFloat 4.2s ease-in-out infinite;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F9FAFB;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #D1D5DB;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #16A34A;
+    }
+  </style>
+</head>
+<body class="bg-white text-panda-black antialiased selection:bg-panda-green selection:text-white">
+
+  <!-- ========================================================= -->
+  <!-- 1. INTRO PEMBUKA — PANDA WALKING ANIMATION OVERLAY        -->
+  <!-- ========================================================= -->
+  <section id="intro-screen" class="fixed inset-0 z-50 bg-white flex flex-col items-center justify-between px-5 py-8 overflow-hidden transition-all duration-700 ease-out">
+    
+    <!-- Top Bar Intro (Skip subtle button) -->
+    <div class="w-full max-w-5xl flex items-center justify-between z-20">
+      <div class="flex items-center gap-2 opacity-80">
+        <span class="inline-block w-2.5 h-2.5 rounded-full bg-panda-green animate-pulse"></span>
+        <span class="text-xs font-semibold tracking-wider uppercase text-gray-500">PanDow Studio</span>
+      </div>
+      <button id="skip-intro-btn" type="button" class="btn-press text-xs font-semibold text-gray-400 hover:text-panda-black px-3.5 py-1.5 rounded-full border border-gray-200 hover:border-gray-300 bg-white/80 backdrop-blur-sm transition">
+        Lewati Intro
+      </button>
+    </div>
+
+    <!-- Decorative Background Elements (Clouds, Stars, Bamboo) -->
+    <div class="pointer-events-none absolute inset-0 overflow-hidden z-0">
+      <!-- Soft Cloud Left -->
+      <svg class="cloud-float-1 absolute top-16 left-4 sm:left-16 w-28 sm:w-40 text-gray-100" viewBox="0 0 180 70" fill="currentColor">
+        <path d="M42 62h98c16.5 0 30-12.5 30-28 0-14.3-11.2-26.2-25.5-27.8C139.6 2.5 130.3 0 120 0c-15.4 0-28.7 8.4-34.8 20.8C81.2 18.4 76.3 17 71 17c-13.8 0-25.2 10.2-27 23.4C31.8 41.3 22 50.6 22 62h20z"/>
+      </svg>
+      <!-- Soft Cloud Right -->
+      <svg class="cloud-float-2 absolute top-28 right-4 sm:right-20 w-32 sm:w-44 text-green-50" viewBox="0 0 180 70" fill="currentColor">
+        <path d="M42 62h98c16.5 0 30-12.5 30-28 0-14.3-11.2-26.2-25.5-27.8C139.6 2.5 130.3 0 120 0c-15.4 0-28.7 8.4-34.8 20.8C81.2 18.4 76.3 17 71 17c-13.8 0-25.2 10.2-27 23.4C31.8 41.3 22 50.6 22 62h20z"/>
+      </svg>
+
+      <!-- Twinkling Stars -->
+      <svg class="star-twinkle-1 absolute top-24 left-1/4 w-5 h-5 text-panda-emerald" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 1l2.8 7.2L22 11l-7.2 2.8L12 21l-2.8-7.2L2 11l7.2-2.8L12 1z"/>
+      </svg>
+      <svg class="star-twinkle-2 absolute top-40 right-1/4 w-4 h-4 text-gray-300" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 1l2.8 7.2L22 11l-7.2 2.8L12 21l-2.8-7.2L2 11l7.2-2.8L12 1z"/>
+      </svg>
+      <svg class="star-twinkle-3 absolute bottom-36 left-12 sm:left-32 w-6 h-6 text-green-300" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 1l2.8 7.2L22 11l-7.2 2.8L12 21l-2.8-7.2L2 11l7.2-2.8L12 1z"/>
+      </svg>
+
+      <!-- Minimalist Bamboo Accent Left & Right -->
+      <svg class="bamboo-sway absolute bottom-12 left-3 sm:left-12 w-12 sm:w-16 h-36 text-green-100" viewBox="0 0 60 160" fill="none">
+        <rect x="26" y="10" width="8" height="150" rx="4" fill="#DCFCE7"/>
+        <line x1="24" y1="50" x2="36" y2="50" stroke="#86EFAC" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="24" y1="105" x2="36" y2="105" stroke="#86EFAC" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M34 48C46 42 54 46 56 52C48 56 39 54 34 48Z" fill="#86EFAC"/>
+        <path d="M26 95C14 88 6 92 4 98C12 102 21 100 26 95Z" fill="#86EFAC"/>
+      </svg>
+      <svg class="bamboo-sway absolute bottom-12 right-3 sm:right-12 w-12 sm:w-16 h-32 text-green-100" viewBox="0 0 60 160" fill="none">
+        <rect x="26" y="25" width="8" height="135" rx="4" fill="#DCFCE7"/>
+        <line x1="24" y1="70" x2="36" y2="70" stroke="#86EFAC" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M34 68C46 62 54 66 56 72C48 76 39 74 34 68Z" fill="#86EFAC"/>
+      </svg>
+    </div>
+
+    <!-- Center Interactive Stage -->
+    <div class="relative z-10 w-full max-w-2xl flex flex-col items-center justify-center my-auto">
+      
+      <!-- Welcome Speech / Greeting Text (Appears when Panda stops in center) -->
+      <div id="intro-greeting" class="text-center mb-4 sm:mb-6 opacity-0 translate-y-4 scale-95 transition-all duration-700 ease-out pointer-events-none px-2">
+        <span class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-panda-light border border-green-200 text-panda-green text-xs font-bold mb-3">
+          <span>✨ Halo Pengguna Baru</span>
+        </span>
+        <h1 class="font-display text-2xl sm:text-4xl font-extrabold text-panda-black tracking-tight leading-snug">
+          Hai! Selamat Datang di <span class="text-panda-green">PanDow</span> 🐼
+        </h1>
+        <p class="text-gray-500 text-sm sm:text-base mt-2 max-w-md mx-auto font-medium">
+          Tempat download video favoritmu dengan mudah!
+        </p>
+      </div>
+
+      <!-- Panda Track & Animated Character -->
+      <div class="w-full relative h-52 sm:h-60 flex items-center justify-center overflow-visible">
+        <!-- Subtle Ground Path Line -->
+        <div class="absolute bottom-5 w-4/5 max-w-md h-1 rounded-full bg-gradient-to-r from-transparent via-gray-200 to-transparent"></div>
+
+        <!-- Moving Panda Container -->
+        <div id="panda-walker-wrapper" class="w-44 h-44 sm:w-52 sm:h-52 flex items-center justify-center">
+          <!-- Custom Articulated SVG Panda -->
+          <svg id="intro-panda-svg" viewBox="0 0 200 200" class="w-full h-full overflow-visible" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Ground Shadow -->
+            <ellipse id="panda-ground-shadow" cx="100" cy="182" rx="44" ry="8" fill="#111827" fill-opacity="0.12" />
+
+            <!-- Left Leg -->
+            <g id="panda-leg-left">
+              <rect x="70" y="144" width="24" height="32" rx="12" fill="#111827" />
+              <ellipse cx="82" cy="173" rx="13" ry="7" fill="#1F2937" />
+              <circle cx="82" cy="173" r="4" fill="#22C55E" fill-opacity="0.75" />
+            </g>
+
+            <!-- Right Leg -->
+            <g id="panda-leg-right">
+              <rect x="106" y="144" width="24" height="32" rx="12" fill="#111827" />
+              <ellipse cx="118" cy="173" rx="13" ry="7" fill="#1F2937" />
+              <circle cx="118" cy="173" r="4" fill="#22C55E" fill-opacity="0.75" />
+            </g>
+
+            <!-- Left Arm (Behind/Side) -->
+            <g id="panda-arm-left">
+              <rect x="52" y="102" width="22" height="42" rx="11" transform="rotate(14 66 108)" fill="#111827" />
+            </g>
+
+            <!-- Torso / Body Group -->
+            <g id="panda-body-group">
+              <!-- Chubby White Belly -->
+              <ellipse cx="100" cy="128" rx="38" ry="34" fill="#FFFFFF" stroke="#111827" stroke-width="5" />
+              <!-- Green Scarf / Collar Accent -->
+              <path d="M70 103C82 110 118 110 130 103" stroke="#16A34A" stroke-width="8" stroke-linecap="round" />
+              <path d="M114 106L121 122L111 120L108 107" fill="#22C55E" />
+              <!-- Belly Patch -->
+              <ellipse cx="100" cy="133" rx="22" ry="18" fill="#F9FAFB" />
+            </g>
+
+            <!-- Right Arm (Waving Arm!) -->
+            <g id="panda-arm-right">
+              <rect x="126" y="102" width="22" height="42" rx="11" transform="rotate(-14 134 108)" fill="#111827" />
+              <!-- Cute Paw Pad -->
+              <circle cx="141" cy="137" r="4.5" fill="#22C55E" />
+            </g>
+
+            <!-- Head Group -->
+            <g id="panda-head-group">
+              <!-- Left Ear -->
+              <circle cx="64" cy="48" r="16" fill="#111827" />
+              <circle cx="64" cy="48" r="7" fill="#374151" />
+              <!-- Right Ear -->
+              <circle cx="136" cy="48" r="16" fill="#111827" />
+              <circle cx="136" cy="48" r="7" fill="#374151" />
+
+              <!-- Main Head -->
+              <rect x="54" y="42" width="92" height="72" rx="36" fill="#FFFFFF" stroke="#111827" stroke-width="5" />
+
+              <!-- Eye Patches -->
+              <ellipse cx="79" cy="76" rx="13" ry="16" transform="rotate(-14 79 76)" fill="#111827" />
+              <ellipse cx="121" cy="76" rx="13" ry="16" transform="rotate(14 121 76)" fill="#111827" />
+
+              <!-- Sparkling Eyes -->
+              <circle cx="81" cy="74" r="5" fill="#FFFFFF" />
+              <circle cx="83" cy="72" r="2" fill="#22C55E" />
+              <circle cx="119" cy="74" r="5" fill="#FFFFFF" />
+              <circle cx="117" cy="72" r="2" fill="#22C55E" />
+
+              <!-- Cute Blush Cheeks -->
+              <ellipse cx="68" cy="90" rx="6" ry="3.5" fill="#86EFAC" fill-opacity="0.75" />
+              <ellipse cx="132" cy="90" rx="6" ry="3.5" fill="#86EFAC" fill-opacity="0.75" />
+
+              <!-- Nose & Happy Smile -->
+              <ellipse cx="100" cy="87" rx="6" ry="4" fill="#111827" />
+              <path d="M92 94C95 99 105 99 108 94" stroke="#111827" stroke-width="3.2" stroke-linecap="round" />
+            </g>
+          </svg>
+        </div>
+      </div>
+
+      <!-- NEXT Button Container (Reveals smoothly after panda exits right) -->
+      <div id="intro-next-container" class="mt-4 h-16 flex flex-col items-center justify-center opacity-0 translate-y-4 pointer-events-none transition-all duration-700 ease-out">
+        <button id="intro-next-btn" type="button" class="btn-press group relative inline-flex items-center gap-3 px-9 py-4 rounded-full bg-panda-black hover:bg-panda-green text-white font-display font-bold text-base sm:text-lg shadow-card hover:shadow-green-glow transition-all duration-300">
+          <span>NEXT</span>
+          <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-white/15 group-hover:bg-white group-hover:text-panda-green transition-transform duration-300 group-hover:translate-x-1">
+            →
+          </span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Bottom Status Hint -->
+    <div class="z-10 text-center">
+      <p id="intro-status-hint" class="text-xs text-gray-400 font-medium transition-opacity duration-300">
+        Panda sedang berjalan menyambutmu...
+      </p>
+    </div>
+  </section>
+
+
+  <!-- ========================================================= -->
+  <!-- 2. HALAMAN UTAMA — DASHBOARD PANDOW                       -->
+  <!-- ========================================================= -->
+  <div id="main-dashboard" class="min-h-screen flex flex-col opacity-0 scale-[0.98] transition-all duration-700 ease-out">
+    
+    <!-- STICKY NAVBAR -->
+    <header class="sticky top-0 z-40 w-full bg-white/90 backdrop-blur-md border-b border-gray-100">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between">
+        
+        <!-- Brand Logo Custom Panda -->
+        <a href="#home" class="btn-press flex items-center gap-2.5 group focus:outline-none">
+          <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-panda-black group-hover:bg-panda-green transition-colors duration-300 flex items-center justify-center shadow-sm">
+            <!-- Mini Panda Icon SVG -->
+            <svg class="w-7 h-7" viewBox="0 0 64 64" fill="none">
+              <circle cx="17" cy="18" r="7" fill="#111827" stroke="#FFFFFF" stroke-width="2.5"/>
+              <circle cx="47" cy="18" r="7" fill="#111827" stroke="#FFFFFF" stroke-width="2.5"/>
+              <rect x="13" y="16" width="38" height="32" rx="16" fill="#FFFFFF"/>
+              <ellipse cx="24" cy="31" rx="5.5" ry="7" transform="rotate(-12 24 31)" fill="#111827"/>
+              <ellipse cx="40" cy="31" rx="5.5" ry="7" transform="rotate(12 40 31)" fill="#111827"/>
+              <circle cx="25" cy="30" r="2.2" fill="#22C55E"/>
+              <circle cx="39" cy="30" r="2.2" fill="#22C55E"/>
+              <ellipse cx="32" cy="37" rx="3" ry="2" fill="#111827"/>
+              <path d="M28 41C30 43.5 34 43.5 36 41" stroke="#111827" stroke-width="2.2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="flex flex-col">
+            <span class="font-display font-extrabold text-xl sm:text-2xl tracking-tight text-panda-black leading-none">
+              Pan<span class="text-panda-green">Dow</span>
+            </span>
+            <span class="text-[10px] font-semibold text-gray-400 tracking-wider uppercase mt-0.5">Panda Downloader</span>
+          </div>
+        </a>
+
+        <!-- Desktop Navigation Links -->
+        <nav class="hidden md:flex items-center gap-2 bg-gray-50/90 p-1.5 rounded-full border border-gray-100">
+          <a href="#home" class="btn-press px-5 py-2 rounded-full text-sm font-semibold text-panda-black bg-white shadow-xs transition">
+            Home
+          </a>
+          <a href="#tutorial" class="btn-press px-5 py-2 rounded-full text-sm font-semibold text-gray-600 hover:text-panda-black hover:bg-white/70 transition">
+            Tutorial
+          </a>
+          <a href="#fitur" class="btn-press px-5 py-2 rounded-full text-sm font-semibold text-gray-600 hover:text-panda-black hover:bg-white/70 transition">
+            Fitur
+          </a>
+        </nav>
+
+        <!-- Right Actions: History/Settings & Replay Intro + Mobile Menu Button -->
+        <div class="flex items-center gap-2 sm:gap-3">
+          <!-- History / Settings Button -->
+          <button id="open-history-btn" type="button" title="Riwayat & Pengaturan" class="btn-press relative inline-flex items-center gap-2 px-3.5 py-2.5 rounded-full border border-gray-200 hover:border-panda-green bg-white text-panda-black text-xs sm:text-sm font-semibold transition">
+            <svg class="w-4 h-4 text-panda-green" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+            <span class="hidden sm:inline">Riwayat</span>
+            <span id="history-badge" class="hidden inline-flex items-center justify-center w-5 h-5 text-[10px] font-bold rounded-full bg-panda-green text-white">0</span>
+          </button>
+
+          <!-- Mobile Hamburger Button -->
+          <button id="mobile-menu-btn" type="button" aria-label="Buka Menu" class="btn-press md:hidden w-10 h-10 rounded-full border border-gray-200 flex flex-col items-center justify-center gap-1.5 bg-white">
+            <span id="ham-line-1" class="w-4.5 h-0.5 bg-panda-black rounded-full transition-all duration-300"></span>
+            <span id="ham-line-2" class="w-4.5 h-0.5 bg-panda-black rounded-full transition-all duration-300"></span>
+            <span id="ham-line-3" class="w-3 h-0.5 bg-panda-green rounded-full self-end mr-2.5 transition-all duration-300"></span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Mobile Dropdown Menu (Smooth Open/Close) -->
+      <div id="mobile-menu-drawer" class="md:hidden max-h-0 overflow-hidden transition-all duration-300 ease-in-out bg-white border-b border-gray-100">
+        <div class="px-4 py-4 flex flex-col gap-2">
+          <a href="#home" class="mobile-nav-link btn-press px-4 py-3 rounded-2xl bg-panda-light text-panda-green font-bold text-sm flex items-center justify-between">
+            <span>Home</span>
+            <span>→</span>
+          </a>
+          <a href="#tutorial" class="mobile-nav-link btn-press px-4 py-3 rounded-2xl hover:bg-gray-50 text-panda-black font-semibold text-sm flex items-center justify-between">
+            <span>Tutorial Penggunaan</span>
+            <span class="text-gray-400">→</span>
+          </a>
+          <a href="#fitur" class="mobile-nav-link btn-press px-4 py-3 rounded-2xl hover:bg-gray-50 text-panda-black font-semibold text-sm flex items-center justify-between">
+            <span>Keunggulan Platform</span>
+            <span class="text-gray-400">→</span>
+          </a>
+          <button id="replay-intro-mobile" type="button" class="btn-press mt-1 px-4 py-3 rounded-2xl border border-gray-200 text-gray-600 font-semibold text-xs flex items-center justify-center gap-2">
+            <span>🐼 Putar Ulang Animasi Intro</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main id="home" class="flex-grow">
+      
+      <!-- HERO SECTION -->
+      <section class="relative pt-8 pb-6 sm:pt-14 sm:pb-10 px-4 sm:px-6 overflow-hidden">
+        <!-- Subtle Minimal Background Dots -->
+        <div class="pointer-events-none absolute top-6 right-8 w-40 h-40 rounded-full bg-green-50 blur-3xl opacity-80"></div>
+        <div class="pointer-events-none absolute bottom-0 left-8 w-44 h-44 rounded-full bg-gray-100 blur-3xl opacity-70"></div>
+
+        <div class="max-w-5xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-12">
+          
+          <!-- Left Hero Copy -->
+          <div class="text-center lg:text-left max-w-xl">
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-panda-light border border-green-200 text-panda-green text-xs font-bold mb-4">
+              <span class="w-2 h-2 rounded-full bg-panda-green animate-ping"></span>
+              <span>Gratis • Tanpa Watermark • Cepat</span>
+            </div>
+
+            <h1 class="font-display text-3xl sm:text-5xl lg:text-[52px] font-extrabold text-panda-black tracking-tight leading-[1.15]">
+              Download Video <span class="text-panda-green relative inline-block">
+                Favoritmu
+                <svg class="absolute -bottom-1.5 left-0 w-full h-2.5 text-green-300" viewBox="0 0 200 12" fill="none" preserveAspectRatio="none">
+                  <path d="M2 9C55 2 145 2 198 9" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
+                </svg>
+              </span>
+            </h1>
+
+            <p class="mt-4 sm:mt-5 text-gray-500 text-sm sm:text-lg leading-relaxed font-medium">
+              Download video dengan cepat, mudah, dan praktis hanya melalui satu tempat. Tempel tautan, pilih kualitas terbaik, dan simpan langsung ke perangkatmu.
+            </p>
+
+            <!-- Supported Platform Pills -->
+            <div class="mt-5 flex flex-wrap items-center justify-center lg:justify-start gap-2">
+              <span class="px-3 py-1 rounded-full bg-gray-50 border border-gray-200 text-xs font-semibold text-gray-600">TikTok</span>
+              <span class="px-3 py-1 rounded-full bg-gray-50 border border-gray-200 text-xs font-semibold text-gray-600">Instagram Reels</span>
+              <span class="px-3 py-1 rounded-full bg-gray-50 border border-gray-200 text-xs font-semibold text-gray-600">YouTube Shorts</span>
+              <span class="px-3 py-1 rounded-full bg-gray-50 border border-gray-200 text-xs font-semibold text-gray-600">X / Twitter</span>
+              <span class="px-3 py-1 rounded-full bg-gray-50 border border-gray-200 text-xs font-semibold text-gray-600">Facebook</span>
+            </div>
+          </div>
+
+          <!-- Right Hero Illustration: Panda Holding Smartphone -->
+          <div class="hero-float relative w-56 sm:w-68 lg:w-76 flex-shrink-0 flex items-center justify-center">
+            <div class="absolute inset-4 rounded-full bg-panda-light border border-green-100 -z-10"></div>
+            <svg viewBox="0 0 240 230" class="w-full h-auto drop-shadow-sm" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Soft Shadow -->
+              <ellipse cx="120" cy="212" rx="68" ry="10" fill="#111827" fill-opacity="0.08"/>
+              
+              <!-- Panda Ears -->
+              <circle cx="76" cy="54" r="19" fill="#111827"/>
+              <circle cx="76" cy="54" r="8" fill="#374151"/>
+              <circle cx="164" cy="54" r="19" fill="#111827"/>
+              <circle cx="164" cy="54" r="8" fill="#374151"/>
+
+              <!-- Panda Body -->
+              <path d="M68 188C68 148 88 126 120 126C152 126 172 148 172 188H68Z" fill="#FFFFFF" stroke="#111827" stroke-width="5" stroke-linejoin="round"/>
+              <!-- Green Hoodie/Scarf Detail -->
+              <path d="M84 128C96 138 144 138 156 128" stroke="#16A34A" stroke-width="9" stroke-linecap="round"/>
+
+              <!-- Panda Head -->
+              <rect x="66" y="48" width="108" height="84" rx="42" fill="#FFFFFF" stroke="#111827" stroke-width="5"/>
+              <!-- Eye Patches -->
+              <ellipse cx="95" cy="87" rx="15" ry="18" transform="rotate(-14 95 87)" fill="#111827"/>
+              <ellipse cx="145" cy="87" rx="15" ry="18" transform="rotate(14 145 87)" fill="#111827"/>
+              <!-- Eyes Looking Down at Phone -->
+              <circle cx="97" cy="88" r="5.5" fill="#FFFFFF"/>
+              <circle cx="99" cy="90" r="2.2" fill="#22C55E"/>
+              <circle cx="143" cy="88" r="5.5" fill="#FFFFFF"/>
+              <circle cx="141" cy="90" r="2.2" fill="#22C55E"/>
+              <!-- Blush -->
+              <ellipse cx="82" cy="103" rx="7" ry="4" fill="#86EFAC" fill-opacity="0.8"/>
+              <ellipse cx="158" cy="103" rx="7" ry="4" fill="#86EFAC" fill-opacity="0.8"/>
+              <!-- Nose & Smile -->
+              <ellipse cx="120" cy="100" rx="7" ry="4.5" fill="#111827"/>
+              <path d="M111 108C115 113 125 113 129 108" stroke="#111827" stroke-width="3.5" stroke-linecap="round"/>
+
+              <!-- Smartphone Held by Panda -->
+              <g transform="rotate(-5 120 162)">
+                <rect x="92" y="124" width="56" height="84" rx="12" fill="#111827" stroke="#111827" stroke-width="3"/>
+                <rect x="97" y="130" width="46" height="72" rx="8" fill="#F0FDF4"/>
+                <!-- Video Play Icon on Screen -->
+                <circle cx="120" cy="161" r="13" fill="#16A34A"/>
+                <path d="M117 155.5L126 161L117 166.5V155.5Z" fill="#FFFFFF"/>
+                <!-- Download Bar on Screen -->
+                <rect x="105" y="182" width="30" height="5" rx="2.5" fill="#BBF7D0"/>
+                <rect x="105" y="182" width="20" height="5" rx="2.5" fill="#16A34A"/>
+              </g>
+
+              <!-- Left & Right Paws Holding the Smartphone -->
+              <ellipse cx="88" cy="164" rx="15" ry="12" transform="rotate(-18 88 164)" fill="#111827"/>
+              <circle cx="88" cy="164" r="4" fill="#22C55E"/>
+              <ellipse cx="152" cy="164" rx="15" ry="12" transform="rotate(18 152 164)" fill="#111827"/>
+              <circle cx="152" cy="164" r="4" fill="#22C55E"/>
+
+              <!-- Floating Download Badge -->
+              <g transform="translate(174, 114)">
+                <circle cx="18" cy="18" r="18" fill="#16A34A"/>
+                <path d="M18 10V23M18 23L13 18M18 23L23 18M12 26H24" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </g>
+            </svg>
+          </div>
+
+        </div>
+      </section>
+
+
+      <!-- ========================================================= -->
+      <!-- 3. FORM DOWNLOAD (MAIN FOCUS CARD)                        -->
+      <!-- ========================================================= -->
+      <section class="px-4 sm:px-6 pb-14 sm:pb-20">
+        <div class="max-w-3xl mx-auto">
+          
+          <!-- Main Downloader Card -->
+          <div class="bg-white rounded-3xl border border-gray-200/90 shadow-card p-5 sm:p-8 md:p-10 transition-all duration-300">
+            
+            <!-- Card Header -->
+            <div class="flex items-center justify-between gap-3 mb-5">
+              <div class="flex items-center gap-3">
+                <!-- Custom Link Icon -->
+                <div class="w-11 h-11 rounded-2xl bg-panda-light border border-green-200 flex items-center justify-center text-panda-green shrink-0">
+                  <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                  </svg>
+                </div>
+                <div>
+                  <h2 class="font-display font-bold text-lg sm:text-xl text-panda-black">
+                    Tempelkan Link Video
+                  </h2>
+                  <p class="text-xs sm:text-sm text-gray-400">
+                    Mendukung tautan publik TikTok, Reels, Shorts, X, & Facebook
+                  </p>
+                </div>
+              </div>
+
+              <!-- Quick Sample Link Helper -->
+              <button id="sample-link-btn" type="button" class="btn-press hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gray-50 hover:bg-panda-light text-gray-500 hover:text-panda-green border border-gray-200 text-xs font-semibold transition">
+                <span>Contoh Link</span>
+              </button>
+            </div>
+
+            <!-- URL Input & Action Controls -->
+            <form id="downloader-form" class="flex flex-col sm:flex-row items-stretch gap-3" novalidate>
+              
+              <!-- Input Wrapper with Paste & Clear Buttons -->
+              <div class="relative flex-grow flex items-center bg-gray-50/80 focus-within:bg-white rounded-2xl sm:rounded-full border-2 border-gray-200 focus-within:border-panda-green transition-all duration-200 px-4 py-1.5">
+                <input
+                  id="video-url-input"
+                  type="url"
+                  inputmode="url"
+                  autocomplete="off"
+                  spellcheck="false"
+                  placeholder="Masukkan link video di sini..."
+                  class="w-full bg-transparent py-2.5 pr-24 text-sm sm:text-base text-panda-black placeholder-gray-400 focus:outline-none font-medium"
+                />
+
+                <!-- Clear Button (Appears when input has value) -->
+                <button id="clear-input-btn" type="button" aria-label="Hapus link" class="btn-press hidden mr-1.5 w-7 h-7 rounded-full bg-gray-200/80 hover:bg-gray-300 text-gray-600 items-center justify-center text-xs font-bold transition">
+                  ✕
+                </button>
+
+                <!-- Paste Button -->
+                <button id="paste-btn" type="button" class="btn-press shrink-0 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl sm:rounded-full bg-white hover:bg-panda-light text-panda-black hover:text-panda-green border border-gray-200 hover:border-green-300 text-xs font-bold shadow-2xs transition">
+                  <svg class="w-3.5 h-3.5 text-panda-green" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                  <span>Paste</span>
+                </button>
+              </div>
+
+              <!-- Primary DOWNLOAD Pill Button -->
+              <button id="download-submit-btn" type="submit" class="btn-press shrink-0 inline-flex items-center justify-center gap-2.5 px-8 py-4 sm:py-3.5 rounded-2xl sm:rounded-full bg-panda-green hover:bg-panda-black text-white font-display font-bold text-sm sm:text-base shadow-green-glow transition-all duration-300">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                <span>DOWNLOAD</span>
+              </button>
+            </form>
+
+            <!-- Mobile Sample Link Helper -->
+            <div class="mt-2.5 flex sm:hidden justify-end">
+              <button id="sample-link-btn-mobile" type="button" class="btn-press text-xs font-semibold text-panda-green hover:underline">
+                + Coba pakai contoh link video
+              </button>
+            </div>
+
+            <!-- LOADING & PROGRESS BAR STATE -->
+            <div id="loading-panel" class="hidden mt-7 pt-6 border-t border-gray-100">
+              <div class="flex flex-col items-center text-center">
+                <!-- Custom Panda Spinner -->
+                <div class="relative w-16 h-16 flex items-center justify-center mb-3">
+                  <div class="loader-ring absolute inset-0 rounded-full border-4 border-gray-100 border-t-panda-green border-r-panda-emerald"></div>
+                  <span class="text-2xl select-none">🐼</span>
+                </div>
+
+                <p id="loading-status-text" class="font-display font-bold text-sm sm:text-base text-panda-black">
+                  Menganalisis tautan video...
+                </p>
+                <p id="loading-substatus-text" class="text-xs text-gray-400 mt-0.5">
+                  Mohon tunggu sebentar, PanDow sedang mengambil data asli
+                </p>
+
+                <!-- Animated Progress Bar -->
+                <div class="w-full max-w-md mt-4 bg-gray-100 h-2.5 rounded-full overflow-hidden p-0.5">
+                  <div id="download-progress-bar" class="h-full w-0 rounded-full bg-gradient-to-r from-panda-green to-panda-emerald transition-all duration-300 ease-out"></div>
+                </div>
+                <span id="download-progress-percent" class="text-[11px] font-bold text-panda-green mt-1.5">0%</span>
+              </div>
+            </div>
+
+            <!-- VIDEO RESULT CARD (Populated dynamically from real API) -->
+            <div id="result-panel" class="hidden mt-7 pt-7 border-t border-gray-100 transition-all duration-500">
+              <div class="bg-gray-50/70 rounded-2xl sm:rounded-3xl border border-gray-200/80 p-4 sm:p-6">
+                <div class="flex flex-col sm:flex-row gap-5 items-center sm:items-start">
+                  
+                  <!-- Video Thumbnail Preview -->
+                  <div class="relative w-full sm:w-44 aspect-video sm:aspect-[4/5] rounded-2xl overflow-hidden bg-panda-black shrink-0 shadow-sm border border-gray-200">
+                    <img
+                      id="result-thumbnail"
+                      src="https://placehold.co/400x500/111827/22C55E?text=PanDow+Video"
+                      onerror="this.onerror=null;this.src='https://placehold.co/400x500/111827/22C55E?text=PanDow+Video';"
+                      alt="Thumbnail Video"
+                      class="w-full h-full object-cover"
+                    />
+                    <span id="result-platform-badge" class="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-full bg-panda-black/80 backdrop-blur-xs text-white text-[10px] font-bold uppercase tracking-wider">
+                      VIDEO
+                    </span>
+                    <span id="result-duration-badge" class="hidden absolute bottom-2.5 right-2.5 px-2 py-0.5 rounded-md bg-black/75 text-white text-[11px] font-semibold">
+                      00:00
+                    </span>
+                  </div>
+
+                  <!-- Video Details & Download Quality Options -->
+                  <div class="flex-grow w-full flex flex-col justify-between">
+                    <div>
+                      <div class="flex items-center gap-2 text-xs font-bold text-panda-green mb-1">
+                        <span>✓ Video Siap Diunduh</span>
+                      </div>
+                      <h3 id="result-title" class="font-display font-bold text-base sm:text-lg text-panda-black line-clamp-2 leading-snug">
+                        Judul Video
+                      </h3>
+                      <p id="result-author" class="text-xs sm:text-sm text-gray-500 font-medium mt-1">
+                        @creator
+                      </p>
+                    </div>
+
+                    <!-- Format / Quality Selector -->
+                    <div class="mt-4">
+                      <label class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">
+                        Pilih Kualitas & Format Tersedia
+                      </label>
+                      <div id="quality-options-list" class="grid grid-cols-1 gap-2.5">
+                        <!-- Dynamically rendered quality buttons -->
+                      </div>
+                    </div>
+
+                    <!-- Direct Download Trigger & Reset -->
+                    <div class="mt-4 pt-3 border-t border-gray-200/70 flex flex-wrap items-center justify-between gap-2">
+                      <span class="text-[11px] text-gray-400">
+                        Klik tombol kualitas di atas untuk langsung mengunduh file.
+                      </span>
+                      <button id="reset-downloader-btn" type="button" class="btn-press text-xs font-bold text-gray-500 hover:text-panda-black px-3 py-1.5 rounded-full hover:bg-gray-200/60 transition">
+                        Unduh Video Lain
+                      </button>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ========================================================= -->
+      <!-- 4. FITUR PLATFORM                                         -->
+      <!-- ========================================================= -->
+      <section id="fitur" class="py-12 sm:py-16 px-4 sm:px-6 bg-gray-50/70 border-y border-gray-100">
+        <div class="max-w-6xl mx-auto">
+          
+          <div class="text-center max-w-2xl mx-auto mb-10 sm:mb-12 reveal-item">
+            <span class="inline-block px-3.5 py-1 rounded-full bg-white border border-gray-200 text-panda-green text-xs font-bold uppercase tracking-wider mb-3">
+              Kenapa Memilih PanDow?
+            </span>
+            <h2 class="font-display text-2xl sm:text-4xl font-extrabold text-panda-black tracking-tight">
+              Pengalaman Unduh Video Lebih Nyaman
+            </h2>
+            <p class="text-gray-500 text-sm sm:text-base mt-2.5">
+              Dirancang minimalis dan ringan agar proses menyimpan video berjalan mulus di semua perangkat.
+            </p>
+          </div>
+
+          <!-- 5 Feature Cards Grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+            
+            <!-- Feature 1: Fast Download -->
+            <div class="reveal-item group bg-white rounded-3xl p-6 sm:p-7 border border-gray-200/80 shadow-soft hover:-translate-y-1.5 hover:border-panda-green/50 transition-all duration-300">
+              <div class="w-12 h-12 rounded-2xl bg-panda-light text-panda-green group-hover:bg-panda-green group-hover:text-white transition-colors duration-300 flex items-center justify-center mb-5">
+                <svg class="w-6 h-6 transition-transform duration-300 group-hover:scale-110" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                </svg>
+              </div>
+              <h3 class="font-display font-bold text-lg text-panda-black mb-2">Fast Download</h3>
+              <p class="text-sm text-gray-500 leading-relaxed">
+                Proses pengambilan metadata dan tautan unduhan berlangsung cepat tanpa antrean panjang yang membuang waktu.
+              </p>
+            </div>
+
+            <!-- Feature 2: HD Quality -->
+            <div class="reveal-item group bg-white rounded-3xl p-6 sm:p-7 border border-gray-200/80 shadow-soft hover:-translate-y-1.5 hover:border-panda-green/50 transition-all duration-300">
+              <div class="w-12 h-12 rounded-2xl bg-panda-light text-panda-green group-hover:bg-panda-green group-hover:text-white transition-colors duration-300 flex items-center justify-center mb-5">
+                <svg class="w-6 h-6 transition-transform duration-300 group-hover:scale-110" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="4" width="20" height="16" rx="3"></rect>
+                  <path d="M7 15V9M11 15V9M7 12h4M14 9h2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2h-2V9z"></path>
+                </svg>
+              </div>
+              <h3 class="font-display font-bold text-lg text-panda-black mb-2">HD Quality</h3>
+              <p class="text-sm text-gray-500 leading-relaxed">
+                Mendukung pilihan resolusi tinggi serta opsi bebas watermark maupun format audio MP3 sesuai ketersediaan sumber.
+              </p>
+            </div>
+
+            <!-- Feature 3: Easy to Use -->
+            <div class="reveal-item group bg-white rounded-3xl p-6 sm:p-7 border border-gray-200/80 shadow-soft hover:-translate-y-1.5 hover:border-panda-green/50 transition-all duration-300">
+              <div class="w-12 h-12 rounded-2xl bg-panda-light text-panda-green group-hover:bg-panda-green group-hover:text-white transition-colors duration-300 flex items-center justify-center mb-5">
+                <svg class="w-6 h-6 transition-transform duration-300 group-hover:scale-110" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+                  <line x1="9" y1="9" x2="9.01" y2="9"></line>
+                  <line x1="15" y1="9" x2="15.01" y2="9"></line>
+                </svg>
+              </div>
+              <h3 class="font-display font-bold text-lg text-panda-black mb-2">Easy to Use</h3>
+              <p class="text-sm text-gray-500 leading-relaxed">
+                Cukup tempel tautan dan tekan tombol download. Tidak perlu instalasi aplikasi tambahan atau pendaftaran akun.
+              </p>
+            </div>
+
+            <!-- Feature 4: Mobile Friendly -->
+            <div class="reveal-item group bg-white rounded-3xl p-6 sm:p-7 border border-gray-200/80 shadow-soft hover:-translate-y-1.5 hover:border-panda-green/50 transition-all duration-300">
+              <div class="w-12 h-12 rounded-2xl bg-panda-light text-panda-green group-hover:bg-panda-green group-hover:text-white transition-colors duration-300 flex items-center justify-center mb-5">
+                <svg class="w-6 h-6 transition-transform duration-300 group-hover:scale-110" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="5" y="2" width="14" height="20" rx="3" ry="3"></rect>
+                  <line x1="12" y1="18" x2="12.01" y2="18"></line>
+                </svg>
+              </div>
+              <h3 class="font-display font-bold text-lg text-panda-black mb-2">Mobile Friendly</h3>
+              <p class="text-sm text-gray-500 leading-relaxed">
+                Tata letak responsif dengan tombol ramah sentuhan jari, terasa seperti aplikasi native di layar smartphone maupun desktop.
+              </p>
+            </div>
+
+            <!-- Feature 5: Free Access -->
+            <div class="reveal-item group bg-white rounded-3xl p-6 sm:p-7 border border-gray-200/80 shadow-soft hover:-translate-y-1.5 hover:border-panda-green/50 transition-all duration-300 sm:col-span-2 lg:col-span-1">
+              <div class="w-12 h-12 rounded-2xl bg-panda-light text-panda-green group-hover:bg-panda-green group-hover:text-white transition-colors duration-300 flex items-center justify-center mb-5">
+                <svg class="w-6 h-6 transition-transform duration-300 group-hover:scale-110" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                  <line x1="7" y1="7" x2="7.01" y2="7"></line>
+                </svg>
+              </div>
+              <h3 class="font-display font-bold text-lg text-panda-black mb-2">Free Access</h3>
+              <p class="text-sm text-gray-500 leading-relaxed">
+                Seluruh fitur PanDow dapat diakses gratis kapan saja dengan tampilan bersih tanpa pop-up mengganggu.
+              </p>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ========================================================= -->
+      <!-- TUTORIAL 3 LANGKAH MUDAH                                  -->
+      <!-- ========================================================= -->
+      <section id="tutorial" class="py-14 sm:py-20 px-4 sm:px-6 bg-white">
+        <div class="max-w-5xl mx-auto">
+          
+          <div class="text-center max-w-xl mx-auto mb-10 sm:mb-12 reveal-item">
+            <span class="inline-block px-3.5 py-1 rounded-full bg-panda-light border border-green-200 text-panda-green text-xs font-bold uppercase tracking-wider mb-3">
+              Panduan Singkat
+            </span>
+            <h2 class="font-display text-2xl sm:text-4xl font-extrabold text-panda-black tracking-tight">
+              Cara Download Video di PanDow
+            </h2>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Step 1 -->
+            <div class="reveal-item relative bg-white rounded-3xl p-6 border border-gray-200 shadow-soft">
+              <span class="inline-flex items-center justify-center w-9 h-9 rounded-full bg-panda-black text-white font-display font-bold text-sm mb-4">
+                1
+              </span>
+              <h3 class="font-display font-bold text-base sm:text-lg text-panda-black mb-1.5">
+                Salin Link Video
+              </h3>
+              <p class="text-sm text-gray-500 leading-relaxed">
+                Buka aplikasi video favoritmu, tekan tombol <strong>Bagikan (Share)</strong>, lalu pilih <strong>Salin Tautan</strong>.
+              </p>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="reveal-item relative bg-white rounded-3xl p-6 border border-gray-200 shadow-soft">
+              <span class="inline-flex items-center justify-center w-9 h-9 rounded-full bg-panda-green text-white font-display font-bold text-sm mb-4">
+                2
+              </span>
+              <h3 class="font-display font-bold text-base sm:text-lg text-panda-black mb-1.5">
+                Tempel di PanDow
+              </h3>
+              <p class="text-sm text-gray-500 leading-relaxed">
+                Kembali ke PanDow, tekan tombol <strong>Paste</strong> pada kolom input, lalu klik tombol <strong>DOWNLOAD</strong>.
+              </p>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="reveal-item relative bg-white rounded-3xl p-6 border border-gray-200 shadow-soft">
+              <span class="inline-flex items-center justify-center w-9 h-9 rounded-full bg-panda-black text-white font-display font-bold text-sm mb-4">
+                3
+              </span>
+              <h3 class="font-display font-bold text-base sm:text-lg text-panda-black mb-1.5">
+                Pilih Kualitas & Simpan
+              </h3>
+              <p class="text-sm text-gray-500 leading-relaxed">
+                Pilih format MP4 HD atau audio MP3 yang tersedia, lalu unduhan akan langsung tersimpan ke galeri perangkatmu.
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+
+
+    <!-- ========================================================= -->
+    <!-- 8. FOOTER                                                 -->
+    <!-- ========================================================= -->
+    <footer class="bg-white border-t border-gray-200/80 pt-10 pb-8 px-4 sm:px-6">
+      <div class="max-w-6xl mx-auto">
+        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pb-8 border-b border-gray-100">
+          
+          <!-- Footer Brand -->
+          <div class="max-w-sm">
+            <div class="flex items-center gap-2.5 mb-2.5">
+              <span class="text-2xl">🐼</span>
+              <span class="font-display font-extrabold text-xl text-panda-black">
+                Pan<span class="text-panda-green">Dow</span>
+              </span>
+            </div>
+            <p class="text-xs sm:text-sm text-gray-500 leading-relaxed">
+              Platform pengunduh video modern yang cepat, bersih, dan ramah pengguna untuk menyimpan konten publik favoritmu.
+            </p>
+          </div>
+
+          <!-- Footer Links -->
+          <div class="flex flex-wrap items-center gap-4 sm:gap-6 text-xs sm:text-sm font-semibold text-gray-600">
+            <button type="button" data-modal="about" class="footer-info-btn btn-press hover:text-panda-green transition">
+              Tentang PanDow
+            </button>
+            <button type="button" data-modal="guide" class="footer-info-btn btn-press hover:text-panda-green transition">
+              Panduan Penggunaan
+            </button>
+            <button type="button" data-modal="privacy" class="footer-info-btn btn-press hover:text-panda-green transition">
+              Kebijakan Privasi
+            </button>
+          </div>
+
+        </div>
+
+        <div class="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-400 font-medium">
+          <p>Copyright © 2026 PanDow. All rights reserved.</p>
+          <p>Dibuat dengan karakter 🐼 untuk kemudahan akses media.</p>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+
+  <!-- ========================================================= -->
+  <!-- CENTERED CUSTOM TOAST NOTIFICATION                         -->
+  <!-- ========================================================= -->
+  <div id="toast-container" class="pointer-events-none fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div id="toast-box" class="opacity-0 scale-90 transition-all duration-300 ease-out bg-panda-black/95 backdrop-blur-md text-white px-5 py-3.5 rounded-2xl shadow-2xl border border-white/10 flex items-center gap-3 max-w-sm text-center sm:text-left">
+      <span id="toast-icon" class="text-lg shrink-0">🐼</span>
+      <p id="toast-message" class="text-xs sm:text-sm font-semibold leading-snug">Pesan notifikasi</p>
+    </div>
+  </div>
+
+
+  <!-- ========================================================= -->
+  <!-- MODAL / DRAWER: RIWAYAT UNDUHAN & INFORMASI               -->
+  <!-- ========================================================= -->
+  <div id="app-modal-backdrop" class="fixed inset-0 z-50 bg-panda-black/40 backdrop-blur-xs opacity-0 pointer-events-none transition-opacity duration-300 flex items-center justify-center p-4">
+    <div id="app-modal-card" class="bg-white w-full max-w-lg rounded-3xl border border-gray-200 shadow-2xl p-6 sm:p-7 scale-95 opacity-0 transition-all duration-300 max-h-[85vh] flex flex-col">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between pb-4 border-b border-gray-100">
+        <div class="flex items-center gap-2.5">
+          <span id="modal-emoji" class="text-xl">🐼</span>
+          <h3 id="modal-title" class="font-display font-bold text-lg text-panda-black">Judul Modal</h3>
+        </div>
+        <button id="close-modal-btn" type="button" class="btn-press w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 flex items-center justify-center text-sm font-bold transition">
+          ✕
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div id="modal-body" class="py-4 overflow-y-auto text-sm text-gray-600 space-y-3 leading-relaxed">
+        <!-- Dynamic Content -->
+      </div>
+
+      <!-- Modal Footer -->
+      <div id="modal-footer" class="pt-3 border-t border-gray-100 flex items-center justify-end gap-2">
+        <button id="modal-ok-btn" type="button" class="btn-press px-6 py-2.5 rounded-full bg-panda-black hover:bg-panda-green text-white text-xs sm:text-sm font-bold transition">
+          Tutup
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ========================================================= -->
+  <!-- JAVASCRIPT APPLICATION LOGIC                              -->
+  <!-- ========================================================= -->
+  <script>
+    (function () {
+      'use strict';
+
+      /* ---------------------------------------------------------
+       * DOM ELEMENTS REFERENCE
+       * --------------------------------------------------------- */
+      const introScreen = document.getElementById('intro-screen');
+      const mainDashboard = document.getElementById('main-dashboard');
+      const pandaWrapper = document.getElementById('panda-walker-wrapper');
+      const introGreeting = document.getElementById('intro-greeting');
+      const introNextContainer = document.getElementById('intro-next-container');
+      const introNextBtn = document.getElementById('intro-next-btn');
+      const skipIntroBtn = document.getElementById('skip-intro-btn');
+      const introStatusHint = document.getElementById('intro-status-hint');
+
+      const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+      const mobileMenuDrawer = document.getElementById('mobile-menu-drawer');
+      const hamLine1 = document.getElementById('ham-line-1');
+      const hamLine2 = document.getElementById('ham-line-2');
+      const hamLine3 = document.getElementById('ham-line-3');
+      const replayIntroMobile = document.getElementById('replay-intro-mobile');
+
+      const downloaderForm = document.getElementById('downloader-form');
+      const videoUrlInput = document.getElementById('video-url-input');
+      const clearInputBtn = document.getElementById('clear-input-btn');
+      const pasteBtn = document.getElementById('paste-btn');
+      const sampleLinkBtn = document.getElementById('sample-link-btn');
+      const sampleLinkBtnMobile = document.getElementById('sample-link-btn-mobile');
+
+      const loadingPanel = document.getElementById('loading-panel');
+      const loadingStatusText = document.getElementById('loading-status-text');
+      const loadingSubstatusText = document.getElementById('loading-substatus-text');
+      const progressBar = document.getElementById('download-progress-bar');
+      const progressPercent = document.getElementById('download-progress-percent');
+
+      const resultPanel = document.getElementById('result-panel');
+      const resultThumbnail = document.getElementById('result-thumbnail');
+      const resultPlatformBadge = document.getElementById('result-platform-badge');
+      const resultDurationBadge = document.getElementById('result-duration-badge');
+      const resultTitle = document.getElementById('result-title');
+      const resultAuthor = document.getElementById('result-author');
+      const qualityOptionsList = document.getElementById('quality-options-list');
+      const resetDownloaderBtn = document.getElementById('reset-downloader-btn');
+
+      const openHistoryBtn = document.getElementById('open-history-btn');
+      const historyBadge = document.getElementById('history-badge');
+
+      const toastBox = document.getElementById('toast-box');
+      const toastIcon = document.getElementById('toast-icon');
+      const toastMessage = document.getElementById('toast-message');
+
+      const modalBackdrop = document.getElementById('app-modal-backdrop');
+      const modalCard = document.getElementById('app-modal-card');
+      const modalEmoji = document.getElementById('modal-emoji');
+      const modalTitle = document.getElementById('modal-title');
+      const modalBody = document.getElementById('modal-body');
+      const closeModalBtn = document.getElementById('close-modal-btn');
+      const modalOkBtn = document.getElementById('modal-ok-btn');
+
+      /* ---------------------------------------------------------
+       * STATE MANAGEMENT
+       * --------------------------------------------------------- */
+      let introTimers = [];
+      let toastTimeout = null;
+      let isMobileMenuOpen = false;
+      let downloadHistory = [];
+
+      try {
+        const saved = localStorage.getItem('pandow_history_v1');
+        if (saved) downloadHistory = JSON.parse(saved);
+      } catch (e) {
+        downloadHistory = [];
+      }
+
+      /* ---------------------------------------------------------
+       * CUSTOM CENTERED TOAST NOTIFICATION
+       * --------------------------------------------------------- */
+      function showToast(message, icon = '🐼', duration = 2800) {
+        if (toastTimeout) clearTimeout(toastTimeout);
+        toastIcon.textContent = icon;
+        toastMessage.textContent = message;
+
+        toastBox.classList.remove('opacity-0', 'scale-90');
+        toastBox.classList.add('opacity-100', 'scale-100');
+
+        toastTimeout = setTimeout(() => {
+          toastBox.classList.remove('opacity-100', 'scale-100');
+          toastBox.classList.add('opacity-0', 'scale-90');
+        }, duration);
+      }
+
+      /* ---------------------------------------------------------
+       * 1. PANDA INTRO WALKING & WAVING SEQUENCE
+       * --------------------------------------------------------- */
+      function clearIntroTimers() {
+        introTimers.forEach(t => clearTimeout(t));
+        introTimers = [];
+      }
+
+      function startPandaIntroSequence() {
+        clearIntroTimers();
+
+        // Reset Intro UI
+        introScreen.classList.remove('hidden', 'opacity-0', 'scale-105', 'pointer-events-none');
+        mainDashboard.classList.add('opacity-0', 'scale-[0.98]');
+
+        introGreeting.classList.add('opacity-0', 'translate-y-4', 'scale-95');
+        introGreeting.classList.remove('opacity-100', 'translate-y-0', 'scale-100');
+
+        introNextContainer.classList.add('opacity-0', 'translate-y-4', 'pointer-events-none');
+        introNextContainer.classList.remove('opacity-100', 'translate-y-0', 'pointer-events-auto');
+
+        introStatusHint.textContent = 'Panda sedang berjalan menyambutmu...';
+        introStatusHint.classList.remove('opacity-0');
+
+        // Place Panda off-screen left immediately without transition
+        const offscreenOffset = Math.min(window.innerWidth * 0.65, 560);
+        pandaWrapper.style.transition = 'none';
+        pandaWrapper.style.transform = `translateX(-${offscreenOffset}px)`;
+        pandaWrapper.classList.remove('panda-waving');
+        pandaWrapper.classList.add('panda-walking');
+
+        // Force reflow
+        void pandaWrapper.offsetWidth;
+
+        // Step A: Walk from Left to Center
+        introTimers.push(setTimeout(() => {
+          pandaWrapper.style.transition = 'transform 2.4s cubic-bezier(0.22, 0.85, 0.36, 1)';
+          pandaWrapper.style.transform = 'translateX(0px)';
+        }, 80));
+
+        // Step B: Arrive at Center -> Stop walking, show greeting, start waving
+        introTimers.push(setTimeout(() => {
+          pandaWrapper.classList.remove('panda-walking');
+          pandaWrapper.classList.add('panda-waving');
+          introStatusHint.textContent = 'Panda menyapamu dengan ramah!';
+
+          introGreeting.classList.remove('opacity-0', 'translate-y-4', 'scale-95');
+          introGreeting.classList.add('opacity-100', 'translate-y-0', 'scale-100');
+        }, 2550));
+
+        // Step C: Finish waving -> Resume walking toward Right edge
+        introTimers.push(setTimeout(() => {
+          pandaWrapper.classList.remove('panda-waving');
+          pandaWrapper.classList.add('panda-walking');
+          introStatusHint.textContent = 'Siap masuk ke PanDow...';
+
+          pandaWrapper.style.transition = 'transform 2.2s cubic-bezier(0.45, 0.05, 0.75, 0.9)';
+          pandaWrapper.style.transform = `translateX(${offscreenOffset}px)`;
+        }, 5100));
+
+        // Step D: Panda exits right -> Reveal smooth NEXT button
+        introTimers.push(setTimeout(() => {
+          pandaWrapper.classList.remove('panda-walking');
+          introStatusHint.classList.add('opacity-0');
+
+          introNextContainer.classList.remove('opacity-0', 'translate-y-4', 'pointer-events-none');
+          introNextContainer.classList.add('opacity-100', 'translate-y-0', 'pointer-events-auto');
+        }, 7250));
+      }
+
+      function enterMainDashboard() {
+        clearIntroTimers();
+        introScreen.classList.add('opacity-0', 'scale-105', 'pointer-events-none');
+
+        setTimeout(() => {
+          introScreen.classList.add('hidden');
+          mainDashboard.classList.remove('opacity-0', 'scale-[0.98]');
+          mainDashboard.classList.add('opacity-100', 'scale-100');
+          triggerScrollReveal();
+        }, 450);
+      }
+
+      introNextBtn.addEventListener('click', enterMainDashboard);
+      skipIntroBtn.addEventListener('click', enterMainDashboard);
+
+      if (replayIntroMobile) {
+        replayIntroMobile.addEventListener('click', () => {
+          toggleMobileMenu(false);
+          startPandaIntroSequence();
+        });
+      }
+
+      /* ---------------------------------------------------------
+       * MOBILE NAVIGATION DRAWER
+       * --------------------------------------------------------- */
+      function toggleMobileMenu(forceState) {
+        isMobileMenuOpen = typeof forceState === 'boolean' ? forceState : !isMobileMenuOpen;
+        if (isMobileMenuOpen) {
+          mobileMenuDrawer.style.maxHeight = mobileMenuDrawer.scrollHeight + 'px';
+          hamLine1.style.transform = 'translateY(8px) rotate(45deg)';
+          hamLine2.style.opacity = '0';
+          hamLine3.style.width = '18px';
+          hamLine3.style.marginRight = '0px';
+          hamLine3.style.transform = 'translateY(-8px) rotate(-45deg)';
+        } else {
+          mobileMenuDrawer.style.maxHeight = '0px';
+          hamLine1.style.transform = 'none';
+          hamLine2.style.opacity = '1';
+          hamLine3.style.width = '12px';
+          hamLine3.style.marginRight = '10px';
+          hamLine3.style.transform = 'none';
+        }
+      }
+
+      mobileMenuBtn.addEventListener('click', () => toggleMobileMenu());
+      document.querySelectorAll('.mobile-nav-link').forEach(link => {
+        link.addEventListener('click', () => toggleMobileMenu(false));
+      });
+
+      /* ---------------------------------------------------------
+       * INPUT CONTROLS (PASTE, CLEAR, SAMPLE)
+       * --------------------------------------------------------- */
+      function updateClearButtonVisibility() {
+        if (videoUrlInput.value.trim().length > 0) {
+          clearInputBtn.classList.remove('hidden');
+          clearInputBtn.classList.add('inline-flex');
+        } else {
+          clearInputBtn.classList.add('hidden');
+          clearInputBtn.classList.remove('inline-flex');
+        }
+      }
+
+      videoUrlInput.addEventListener('input', updateClearButtonVisibility);
+
+      clearInputBtn.addEventListener('click', () => {
+        videoUrlInput.value = '';
+        updateClearButtonVisibility();
+        videoUrlInput.focus();
+      });
+
+      pasteBtn.addEventListener('click', async () => {
+        try {
+          if (navigator.clipboard && navigator.clipboard.readText) {
+            const text = await navigator.clipboard.readText();
+            if (text && text.trim()) {
+              videoUrlInput.value = text.trim();
+              updateClearButtonVisibility();
+              showToast('Link berhasil ditempel!', '📋');
+              return;
+            } else {
+              showToast('Clipboard masih kosong.', '⚠️');
+              return;
+            }
+          }
+          throw new Error('Clipboard API unavailable');
+        } catch (err) {
+          videoUrlInput.focus();
+          showToast('Tekan & tahan pada kolom input lalu pilih Tempel (Paste).', '💡', 3200);
+        }
+      });
+
+      function fillSampleUrl() {
+        // Real public TikTok sample video URL for immediate live testing
+        videoUrlInput.value = 'https://www.tiktok.com/@tiktok/video/7106594312292453675';
+        updateClearButtonVisibility();
+        showToast('Contoh link video diisi! Klik DOWNLOAD.', '✨');
+      }
+
+      if (sampleLinkBtn) sampleLinkBtn.addEventListener('click', fillSampleUrl);
+      if (sampleLinkBtnMobile) sampleLinkBtnMobile.addEventListener('click', fillSampleUrl);
+
+      /* ---------------------------------------------------------
+       * URL VALIDATION & PLATFORM DETECTION
+       * --------------------------------------------------------- */
+      function detectPlatform(urlStr) {
+        const lower = urlStr.toLowerCase();
+        if (lower.includes('tiktok.com')) return 'TikTok';
+        if (lower.includes('instagram.com')) return 'Instagram';
+        if (lower.includes('youtube.com') || lower.includes('youtu.be')) return 'YouTube';
+        if (lower.includes('twitter.com') || lower.includes('x.com')) return 'X / Twitter';
+        if (lower.includes('facebook.com') || lower.includes('fb.watch')) return 'Facebook';
+        return 'Web Video';
+      }
+
+      function validateVideoUrl(rawUrl) {
+        const trimmed = rawUrl.trim();
+        if (!trimmed) {
+          return { valid: false, message: 'Link video masih kosong! Tempelkan URL terlebih dahulu.' };
+        }
+        let parsed;
+        try {
+          parsed = new URL(trimmed.startsWith('http') ? trimmed : `https://${trimmed}`);
+        } catch (e) {
+          return { valid: false, message: 'Format link tidak valid. Pastikan diawali https://...' };
+        }
+
+        if (!['http:', 'https:'].includes(parsed.protocol) || !parsed.hostname.includes('.')) {
+          return { valid: false, message: 'Masukkan tautan URL video yang lengkap dan valid.' };
+        }
+
+        return { valid: true, url: parsed.href, platform: detectPlatform(parsed.href) };
+      }
+
+      /* ---------------------------------------------------------
+       * REAL VIDEO DOWNLOADER API INTEGRATION
+       * Uses TikWM API (for TikTok) & Cobalt Public API Instances (Multi-Platform)
+       * --------------------------------------------------------- */
+      function formatSeconds(sec) {
+        if (!sec || isNaN(sec)) return '';
+        const m = Math.floor(sec / 60);
+        const s = Math.floor(sec % 60);
+        return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+      }
+
+      async function fetchFromTikWM(videoUrl) {
+        const endpoint = `https://www.tikwm.com/api/?url=${encodeURIComponent(videoUrl)}&hd=1`;
+        const response = await fetch(endpoint);
+        if (!response.ok) throw new Error('TikWM network error');
+        const json = await response.json();
+
+        if (json && json.code === 0 && json.data) {
+          const d = json.data;
+          const options = [];
+
+          if (d.hdplay) {
+            options.push({
+              label: 'MP4 HD • Tanpa Watermark',
+              badge: 'HD 1080p',
+              url: d.hdplay,
+              ext: 'mp4',
+              primary: true
+            });
+          }
+          if (d.play) {
+            options.push({
+              label: 'MP4 Standar • Tanpa Watermark',
+              badge: 'MP4',
+              url: d.play,
+              ext: 'mp4',
+              primary: !d.hdplay
+            });
+          }
+          if (d.wmplay) {
+            options.push({
+              label: 'MP4 Original (Dengan Watermark)',
+              badge: 'WM',
+              url: d.wmplay,
+              ext: 'mp4',
+              primary: false
+            });
+          }
+          if (d.music) {
+            options.push({
+              label: 'Audio Musik Saja (MP3)',
+              badge: 'MP3',
+              url: d.music,
+              ext: 'mp3',
+              primary: false
+            });
+          }
+
+          if (options.length === 0) throw new Error('No playable media links returned');
+
+          return {
+            title: d.title || 'Video TikTok Tanpa Judul',
+            author: d.author && d.author.unique_id ? `@${d.author.unique_id}` : 'Kreator TikTok',
+            thumbnail: d.cover || d.origin_cover || 'https://placehold.co/400x500/111827/22C55E?text=TikTok+Video',
+            duration: formatSeconds(d.duration),
+            platform: 'TikTok',
+            sourceUrl: videoUrl,
+            options
+          };
+        }
+        throw new Error(json.msg || 'Gagal mengambil data TikTok');
+      }
+
+      async function fetchFromCobalt(videoUrl, platform) {
+        // Public Cobalt-compatible API endpoints
+        const cobaltEndpoints = [
+          'https://api.cobalt.tools/',
+          'https://cobalt-api.kwiatekmiki.com/'
+        ];
+
+        let lastError = null;
+        for (const apiBase of cobaltEndpoints) {
+          try {
+            const res = await fetch(apiBase, {
+              method: 'POST',
+              headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                url: videoUrl,
+                videoQuality: '1080',
+                filenameStyle: 'pretty'
+              })
+            });
+
+            if (!res.ok) continue;
+            const data = await res.json();
+
+            if (data && (data.status === 'tunnel' || data.status === 'redirect' || data.status === 'stream') && data.url) {
+              return {
+                title: data.filename ? data.filename.replace(/\.[^/.]+$/, '') : `Video ${platform}`,
+                author: `Sumber: ${platform}`,
+                thumbnail: 'https://placehold.co/400x500/111827/22C55E?text=' + encodeURIComponent(platform + '+HD'),
+                duration: '',
+                platform,
+                sourceUrl: videoUrl,
+                options: [
+                  {
+                    label: `Unduh Video ${platform} (Kualitas Terbaik)`,
+                    badge: 'MP4 HD',
+                    url: data.url,
+                    ext: 'mp4',
+                    primary: true
+                  }
+                ]
+              };
+            }
+
+            if (data && data.status === 'picker' && Array.isArray(data.picker) && data.picker.length > 0) {
+              const opts = data.picker.map((item, idx) => ({
+                label: `Media Slide #${idx + 1} (${item.type || 'Video'})`,
+                badge: (item.type || 'MP4').toUpperCase(),
+                url: item.url,
+                ext: item.type === 'photo' ? 'jpg' : 'mp4',
+                primary: idx === 0
+              }));
+              return {
+                title: `Koleksi Media ${platform}`,
+                author: `Sumber: ${platform}`,
+                thumbnail: data.picker[0].thumb || 'https://placehold.co/400x500/111827/22C55E?text=' + encodeURIComponent(platform),
+                duration: '',
+                platform,
+                sourceUrl: videoUrl,
+                options: opts
+              };
+            }
+          } catch (err) {
+            lastError = err;
+          }
+        }
+        throw lastError || new Error('Layanan API sedang sibuk atau tautan bersifat privat.');
+      }
+
+      async function resolveVideoData(videoUrl, platform) {
+        if (platform === 'TikTok') {
+          try {
+            return await fetchFromTikWM(videoUrl);
+          } catch (e) {
+            return await fetchFromCobalt(videoUrl, platform);
+          }
+        }
+        return await fetchFromCobalt(videoUrl, platform);
+      }
+
+      /* ---------------------------------------------------------
+       * REAL FILE DOWNLOAD TRIGGER & HISTORY SAVING
+       * --------------------------------------------------------- */
+      function saveToHistory(item) {
+        downloadHistory.unshift({
+          title: item.title,
+          platform: item.platform,
+          sourceUrl: item.sourceUrl,
+          date: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+        });
+        if (downloadHistory.length > 15) downloadHistory.pop();
+        try {
+          localStorage.setItem('pandow_history_v1', JSON.stringify(downloadHistory));
+        } catch (e) {}
+        updateHistoryBadge();
+      }
+
+      function updateHistoryBadge() {
+        if (downloadHistory.length > 0) {
+          historyBadge.textContent = downloadHistory.length;
+          historyBadge.classList.remove('hidden');
+        } else {
+          historyBadge.classList.add('hidden');
+        }
+      }
+
+      async function triggerRealMediaDownload(mediaUrl, filename, videoMeta) {
+        showToast('Memulai unduhan file media...', '⬇️', 2500);
+        saveToHistory(videoMeta);
+
+        try {
+          // Attempt blob download for direct save without leaving page
+          const response = await fetch(mediaUrl);
+          if (!response.ok) throw new Error('Direct blob blocked by CORS');
+          const blob = await response.blob();
+          const blobUrl = URL.createObjectURL(blob);
+
+          const a = document.createElement('a');
+          a.href = blobUrl;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+
+          showToast('Berhasil! File sedang disimpan ke perangkatmu.', '✅', 3000);
+        } catch (err) {
+          // Fallback to direct media link open/download if CDN restricts fetch CORS
+          const a = document.createElement('a');
+          a.href = mediaUrl;
+          a.target = '_blank';
+          a.rel = 'noopener noreferrer';
+          a.setAttribute('download', filename);
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          showToast('Tautan unduhan dibuka! Simpan video dari pemutar.', '🎬', 3200);
+        }
+      }
+
+      /* ---------------------------------------------------------
+       * FORM SUBMIT HANDLER & PROGRESS ANIMATION
+       * --------------------------------------------------------- */
+      function setProgress(percent, status, substatus) {
+        progressBar.style.width = `${percent}%`;
+        progressPercent.textContent = `${percent}%`;
+        if (status) loadingStatusText.textContent = status;
+        if (substatus) loadingSubstatusText.textContent = substatus;
+      }
+
+      function renderResultCard(data) {
+        resultThumbnail.src = data.thumbnail;
+        resultPlatformBadge.textContent = data.platform;
+
+        if (data.duration) {
+          resultDurationBadge.textContent = data.duration;
+          resultDurationBadge.classList.remove('hidden');
+        } else {
+          resultDurationBadge.classList.add('hidden');
+        }
+
+        resultTitle.textContent = data.title;
+        resultAuthor.textContent = data.author;
+
+        qualityOptionsList.innerHTML = '';
+        data.options.forEach((opt) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = opt.primary
+            ? 'btn-press w-full flex items-center justify-between gap-3 px-4 py-3.5 rounded-2xl bg-panda-green hover:bg-panda-black text-white font-semibold text-xs sm:text-sm shadow-sm transition-all duration-200'
+            : 'btn-press w-full flex items-center justify-between gap-3 px-4 py-3 rounded-2xl bg-white hover:bg-panda-light text-panda-black border border-gray-200 hover:border-panda-green font-semibold text-xs sm:text-sm transition-all duration-200';
+
+          btn.innerHTML = `
+            <span class="flex items-center gap-2.5 text-left">
+              <span class="px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase ${opt.primary ? 'bg-white/20 text-white' : 'bg-panda-light text-panda-green'}">
+                ${opt.badge}
+              </span>
+              <span>${opt.label}</span>
+            </span>
+            <span class="inline-flex items-center gap-1 font-bold shrink-0">
+              <span>Unduh</span>
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+            </span>
+          `;
+
+          const safeFilename = `PanDow_${data.platform}_${Date.now()}.${opt.ext}`;
+          btn.addEventListener('click', () => triggerRealMediaDownload(opt.url, safeFilename, data));
+          qualityOptionsList.appendChild(btn);
+        });
+
+        resultPanel.classList.remove('hidden');
+        resultPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+
+      downloaderForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const validation = validateVideoUrl(videoUrlInput.value);
+        if (!validation.valid) {
+          showToast(validation.message, '⚠️', 3000);
+          videoUrlInput.focus();
+          return;
+        }
+
+        // Prepare UI for Processing
+        resultPanel.classList.add('hidden');
+        loadingPanel.classList.remove('hidden');
+        setProgress(15, 'Memvalidasi tautan...', `Mendeteksi sumber ${validation.platform}`);
+
+        const step1 = setTimeout(() => {
+          setProgress(48, 'Menghubungkan ke server media...', 'Mengambil metadata & resolusi video asli');
+        }, 450);
+
+        const step2 = setTimeout(() => {
+          setProgress(78, 'Menyiapkan tautan unduhan...', 'Hampir selesai, mohon tunggu...');
+        }, 1100);
+
+        try {
+          const videoData = await resolveVideoData(validation.url, validation.platform);
+          clearTimeout(step1);
+          clearTimeout(step2);
+
+          setProgress(100, 'Berhasil diproses!', 'Silakan pilih kualitas unduhan di bawah');
+
+          setTimeout(() => {
+            loadingPanel.classList.add('hidden');
+            renderResultCard(videoData);
+            showToast('Video berhasil ditemukan!', '🎉', 2400);
+          }, 350);
+
+        } catch (err) {
+          clearTimeout(step1);
+          clearTimeout(step2);
+          loadingPanel.classList.add('hidden');
+          showToast(
+            'Gagal memproses tautan. Pastikan video bersifat publik dan coba lagi.',
+            '❌',
+            3800
+          );
+        }
+      });
+
+      resetDownloaderBtn.addEventListener('click', () => {
+        resultPanel.classList.add('hidden');
+        videoUrlInput.value = '';
+        updateClearButtonVisibility();
+        videoUrlInput.focus();
+      });
+
+      /* ---------------------------------------------------------
+       * MODAL SYSTEM (HISTORY, ABOUT, GUIDE, PRIVACY)
+       * --------------------------------------------------------- */
+      function openModal(emoji, title, htmlContent) {
+        modalEmoji.textContent = emoji;
+        modalTitle.textContent = title;
+        modalBody.innerHTML = htmlContent;
+
+        modalBackdrop.classList.remove('pointer-events-none', 'opacity-0');
+        modalBackdrop.classList.add('opacity-100');
+        modalCard.classList.remove('scale-95', 'opacity-0');
+        modalCard.classList.add('scale-100', 'opacity-100');
+      }
+
+      function closeModal() {
+        modalBackdrop.classList.add('opacity-0', 'pointer-events-none');
+        modalBackdrop.classList.remove('opacity-100');
+        modalCard.classList.add('scale-95', 'opacity-0');
+        modalCard.classList.remove('scale-100', 'opacity-100');
+      }
+
+      closeModalBtn.addEventListener('click', closeModal);
+      modalOkBtn.addEventListener('click', closeModal);
+      modalBackdrop.addEventListener('click', (e) => {
+        if (e.target === modalBackdrop) closeModal();
+      });
+
+      openHistoryBtn.addEventListener('click', () => {
+        if (downloadHistory.length === 0) {
+          openModal(
+            '🐼',
+            'Riwayat & Pengaturan',
+            `
+              <div class="text-center py-6">
+                <p class="text-gray-500 font-medium">Belum ada riwayat unduhan tersimpan di sesi ini.</p>
+                <p class="text-xs text-gray-400 mt-1">Riwayat disimpan secara lokal di browser perangkatmu.</p>
+              </div>
+              <div class="pt-3 border-t border-gray-100 flex justify-center">
+                <button id="modal-replay-intro" type="button" class="btn-press px-4 py-2 rounded-full bg-panda-light text-panda-green font-bold text-xs">
+                  🎬 Putar Ulang Animasi Intro Panda
+                </button>
+              </div>
+            `
+          );
+        } else {
+          const listHtml = downloadHistory.map((item) => `
+            <div class="p-3 rounded-2xl bg-gray-50 border border-gray-200/80 flex items-center justify-between gap-3">
+              <div class="min-w-0">
+                <span class="inline-block px-2 py-0.5 rounded-md bg-panda-light text-panda-green text-[10px] font-bold mb-1">${item.platform}</span>
+                <p class="text-xs font-bold text-panda-black truncate">${item.title}</p>
+                <p class="text-[11px] text-gray-400">Diunduh pukul ${item.date}</p>
+              </div>
+            </div>
+          `).join('');
+
+          openModal(
+            '📂',
+            'Riwayat Unduhan Lokal',
+            `
+              <div class="space-y-2.5">${listHtml}</div>
+              <div class="pt-3 flex items-center justify-between gap-2">
+                <button id="modal-replay-intro" type="button" class="btn-press px-3.5 py-2 rounded-full bg-panda-light text-panda-green font-bold text-xs">
+                  🎬 Putar Intro
+                </button>
+                <button id="clear-history-btn" type="button" class="btn-press px-3.5 py-2 rounded-full bg-red-50 text-red-600 font-bold text-xs">
+                  Hapus Riwayat
+                </button>
+              </div>
+            `
+          );
+
+          const clearHistBtn = document.getElementById('clear-history-btn');
+          if (clearHistBtn) {
+            clearHistBtn.addEventListener('click', () => {
+              downloadHistory = [];
+              localStorage.removeItem('pandow_history_v1');
+              updateHistoryBadge();
+              closeModal();
+              showToast('Riwayat unduhan berhasil dibersihkan.', '🧹');
+            });
+          }
+        }
+
+        const replayBtn = document.getElementById('modal-replay-intro');
+        if (replayBtn) {
+          replayBtn.addEventListener('click', () => {
+            closeModal();
+            startPandaIntroSequence();
+          });
+        }
+      });
+
+      // Footer Info Modals
+      document.querySelectorAll('.footer-info-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const type = btn.getAttribute('data-modal');
+          if (type === 'about') {
+            openModal(
+              '🐼',
+              'Tentang PanDow',
+              `
+                <p><strong>PanDow (Panda Downloader)</strong> adalah antarmuka pengunduh video berbasis web yang dirancang untuk mengutamakan kecepatan, kesederhanaan, dan kenyamanan visual di perangkat seluler maupun desktop.</p>
+                <p>Kami tidak menyimpan salinan video di server internal; seluruh tautan diproses secara langsung dari sumber publik yang didukung.</p>
+              `
+            );
+          } else if (type === 'guide') {
+            openModal(
+              '📘',
+              'Panduan Penggunaan',
+              `
+                <ol class="list-decimal pl-5 space-y-2">
+                  <li>Pastikan video yang ingin diunduh berstatus <strong>Publik</strong> (bukan akun privat).</li>
+                  <li>Salin tautan video dari menu Bagikan pada platform terkait.</li>
+                  <li>Tempelkan tautan ke kolom input PanDow dan tekan <strong>DOWNLOAD</strong>.</li>
+                  <li>Pilih kualitas MP4 atau format audio MP3 yang muncul pada kartu hasil.</li>
+                </ol>
+              `
+            );
+          } else if (type === 'privacy') {
+            openModal(
+              '🔒',
+              'Kebijakan Privasi',
+              `
+                <p>PanDow menghormati privasi pengguna. Kami tidak mewajibkan pendaftaran akun, tidak melacak identitas pribadi, dan hanya menyimpan riwayat unduhan di penyimpanan lokal (<em>localStorage</em>) perangkat Anda sendiri.</p>
+                <p>Gunakan layanan ini secara bijak dan hormati hak cipta masing-masing kreator konten.</p>
+              `
+            );
+          }
+        });
+      });
+
+      /* ---------------------------------------------------------
+       * SCROLL REVEAL OBSERVER
+       * --------------------------------------------------------- */
+      function triggerScrollReveal() {
+        const items = document.querySelectorAll('.reveal-item');
+        if ('IntersectionObserver' in window) {
+          const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add('is-visible');
+                observer.unobserve(entry.target);
+              }
+            });
+          }, { threshold: 0.12 });
+
+          items.forEach(el => observer.observe(el));
+        } else {
+          items.forEach(el => el.classList.add('is-visible'));
+        }
+      }
+
+      /* ---------------------------------------------------------
+       * INITIALIZE ON WINDOW LOAD
+       * --------------------------------------------------------- */
+      window.addEventListener('load', () => {
+        updateHistoryBadge();
+        startPandaIntroSequence();
+      });
+
+    })();
+  </script>
+</body>
+</html>
